@@ -1,0 +1,11 @@
+// https://www.section.io/engineering-education/how-to-create-a-simple-rest-api-using-typescript-and-nodejs/
+import controller from '../controllers/';
+const router = express.Router();
+
+router.get('/rover', controller.initRover);
+router.put('/move', controller.moveRover);
+
+
+
+// more easy implementation (vanilla)
+// https://www.topcoder.com/thrive/articles/how-to-build-rest-apis-with-typescript-with-no-frameworks-and-only-using
