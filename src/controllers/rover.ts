@@ -36,7 +36,7 @@ export default class RoverController {
 
 
     // todo: order class by init timing
-    constructor(mapLength = 2) {
+    constructor(mapLength = 4) {
         this.initializeRoutes();
 
         console.log('----------- init program ------------')
@@ -49,6 +49,7 @@ export default class RoverController {
     }
 
     initializeRoutes() {
+        this.router.get('/mapInfo', this.getMapInfo);
         this.router.get('/roverInfo', this.getRoverInfo);
         this.router.get('/roverMove', this.roverMoveView);
         this.router.post('/roverMove', this.roverMove);
@@ -58,12 +59,24 @@ export default class RoverController {
 
     getRoutesList() {
         return [
+            'mapInfo',
             'roverInfo',
             'roverMove'
         ]
     }
 
     /** PUBLIC ROUTES */
+    getMapInfo = async (req: Request, res: Response, next: NextFunction) => {
+        return res.status(200).json({
+            mapLength: this.mapLength,
+            mapGrid: this.mapGrid,
+            mapGridObstacles: this.mapGridObstacles,
+            roverPosition: this.currentPosition,
+            roverDirection: this.currentDirection,
+
+        });
+    };
+
     // return the rover positon and rirection
     getRoverInfo = async (req: Request, res: Response, next: NextFunction) => {
         return res.status(200).render('roverInfo', {
@@ -80,6 +93,7 @@ export default class RoverController {
             mapGrid: this.mapGrid,
             mapGridObstacles: this.mapGridObstacles,
             mapLength: this.mapLength,
+            message: 'The rover position is: {y:' + this.currentPosition.y + ', x:' + this.currentPosition.x + '}, directed to ' + this.currentDirection +'. <br> Insert commands above to move the rover.'
         });
     };
 
@@ -99,7 +113,7 @@ export default class RoverController {
             if( this.isThereObstacles() ) {
                 console.log('ostacolo trovato')
                 return res.status(200).render('roverMove', {
-                    message: 'Obstacle found! We move the rover untile the last free position.',
+                    message: 'Obstacle found! The rover is moved until the last free position.',
                     position: this.currentPosition,
                     direction: this.currentDirection,
                     obstaclePosition: this.futurePosition,
@@ -110,20 +124,20 @@ export default class RoverController {
                 // @todo: interrompere la sequenza e restare in ascolto di nuovi comandi
             } else {
                 // no obstacle found, update the futurePosition
-                this.currentPosition = this.futurePosition; 
-                console.log('ostacolo non trovato, muovo...')
-
-                // if we are at the end of commands we return rover info
-                return res.status(200).render('roverMove', {
-                    message: 'We move the rover. No ostacle found',
-                    position: this.currentPosition,
-                    direction: this.currentDirection,
-                    obstaclePosition: false,
-                    mapGrid: this.mapGrid,
-                    mapGridObstacles: this.mapGridObstacles,
-                    mapLength: this.mapLength,
-                });
+                console.log('ostacolo non trovato, muovo...', this.currentPosition, this.futurePosition)
+                this.currentPosition = {...this.futurePosition}; 
             }
+        });
+
+        // if we are at the end of commands we return rover info
+        return res.status(200).render('roverMove', {
+            message: 'Rover moved. No ostacle found in the commands path.',
+            position: this.currentPosition,
+            direction: this.currentDirection,
+            obstaclePosition: false,
+            mapGrid: this.mapGrid,
+            mapGridObstacles: this.mapGridObstacles,
+            mapLength: this.mapLength,
         });
     };
 
@@ -138,14 +152,15 @@ export default class RoverController {
     }
 
     setFuturePosition(command: string) {
-        this.futurePosition = this.currentPosition;
+        this.futurePosition = {...this.currentPosition};
+        console.log('init setFuturePosition with command:', command);
 
         // a seconda del tipo di comando chiamo la funzione corrispondente
         switch(command) {
-            case 'f': this.moveForward();
-            case 'b': this.moveBackward();
-            case 'r': this.moveRight();
-            case 'l': this.moveLeft();
+            case 'f': this.moveForward(); break;
+            case 'b': this.moveBackward(); break;
+            case 'r': this.moveRight(); break;
+            case 'l': this.moveLeft(); break;
         }
 
         // we execute wrapping if needed
@@ -153,12 +168,17 @@ export default class RoverController {
     }
 
     moveForward() {
+        console.log('from moveForward');
+        console.log('futurePosition before ++ is', this.futurePosition);
+
         switch(this.currentDirection) {
             case 'N': this.futurePosition.y++; this.lastCoordChanged = 'y'; break;
             case 'E': this.futurePosition.x++; this.lastCoordChanged = 'x'; break;
             case 'S': this.futurePosition.y--; this.lastCoordChanged = 'y'; break;
             case 'W': this.futurePosition.x--; this.lastCoordChanged = 'x'; break;
         }
+
+        console.log('futurePosition after ++ is', this.futurePosition);
     }
 
     moveBackward() {
@@ -190,6 +210,9 @@ export default class RoverController {
 
     // check if we are outside of the map. If yes we execute the wrapping; if not we do nothing.
     wrapping() {
+        console.log('.........')
+        console.log('init Wrapping')
+        console.log('futurePosition here is', this.futurePosition);
         if(this.coordIsOutOfMap()) {
             this.executePositionWrapping();
         }
@@ -199,26 +222,39 @@ export default class RoverController {
     // if the x or y is < 0 of > this.mapLength we are out of the map...
     // lastCoordChanged is the coordinate (x or y) that is just changed by the move function
     coordIsOutOfMap(): boolean {
+        console.log('-------------');
+        console.log('checking if we are out of map');
+        console.log('last coords changed:', this.lastCoordChanged);
+        console.log('future position:', this.futurePosition);
         if( this.futurePosition[this.lastCoordChanged] < 0 || this.futurePosition[this.lastCoordChanged] > this.mapLength ) {
             return true; // the current coord is outside the map, so return true to make a position wrapping 
         } else {
             return false;
+            console.log('not outside the map')
         }
     }
 
     // function that execute the rover position wrapping when the rover go outside of the map
     executePositionWrapping() {
+        console.log('----------');
+        console.log('executiing position wrapping');
+        console.log('current pos->', this.currentPosition);
+        console.log('future pos->', this.futurePosition);
+        console.log('lastCoordChanged->', this.lastCoordChanged);
+        console.log('------------', this.lastCoordChanged);
         if(this.futurePosition[this.lastCoordChanged] < 0){ 
             // if the rover coord position is out map and is < 0 we move the rover to the opposite (x|y = mapLength)
             this.futurePosition[this.lastCoordChanged] = this.mapLength; 
+            console.log(1);
         }
         else if(this.futurePosition[this.lastCoordChanged] > this.mapLength){
             // if the rover coord position is out map and is > of this.mapLength we move the rover to the opposite (x|y = 0)
             this.futurePosition[this.lastCoordChanged] = 0; 
+            console.log(2);
         }
     }
 
-    generateObstacles(obstacles = 2) { // generate a number of obstacles in the map
+    generateObstacles(obstacles = 4) { // generate a number of obstacles in the map
         const mapGridObstacles:any = [];
 
         // generate obstacles until we reach the obstaclesNumber
@@ -239,7 +275,7 @@ export default class RoverController {
     getRandomMapPosition(): any { // return a random map position like {y:1, x:2}
         // todo: check if right the random -1!!
         let randomIndex = this.getRandomNumber(this.mapGrid.length-1); // get a random index
-        let randomMapPosition = this.mapGrid[randomIndex];
+        let randomMapPosition = {...this.mapGrid[randomIndex]}; // spread to copy the object, not reference
         return randomMapPosition;
     }
 
@@ -247,7 +283,7 @@ export default class RoverController {
         let pass = false;
         
         while( !pass ) {
-            let r = this.getRandomMapPosition(); // like 
+            let r = this.getRandomMapPosition(); 
 
             // check if the random position collides with an obstacle, if not we keep it.
             // todo: this is orrible
@@ -308,5 +344,11 @@ TODO STILE
 
  PER L'INTERVISTA
  - il codice non è ottimizzato per un pianeta grande. Lo script è fine a se stesso.
+ - how to improve debugging during deployment?
+
+ LAST TODO
+ - comunicate the error on obstacles
+ - clean code
+ - test
 */
 

@@ -19,7 +19,15 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
 
 app.get('/', (req, res) => {
-  res.status(200).render('index', { routesList: rover.getRoutesList() });
+  res.status(200).render('index', { 
+    routesList: rover.getRoutesList(),
+    position: rover.currentPosition,
+    direction: rover.currentDirection,
+    obstaclePosition: false,
+    mapGrid: rover.mapGrid,
+    mapGridObstacles: rover.mapGridObstacles,
+    mapLength: rover.mapLength,
+ });
 });
 
 /** Logging */
