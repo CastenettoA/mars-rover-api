@@ -9,12 +9,12 @@
                 <% 
                     // Obstacle check. If so add css class.
                     let isThereObstacle = false;
-                    let collision = (obstacle) => obstacle.y === quadrant.y && obstacle.x === quadrant.x;
+                    let collision = (obstacle) => obstacle.x === quadrant.x && obstacle.y === quadrant.y;
                     if( mapGridObstacles.some(collision) ) isThereObstacle = true; else isThereObstacle = false;
                 
                    // Rover position check. If so add css class.
                    let isThereRover = false;
-                   if(quadrant.y === position.y && quadrant.x === position.x) isThereRover = true; else isThereRover = false;
+                   if(quadrant.x === position.x && quadrant.y === position.y) isThereRover = true; else isThereRover = false;
                     
                 %>
                 
@@ -23,7 +23,7 @@
                     
                 >
                     <!-- L value is: <%= l %>  -->
-                    <span>y:<b><%= quadrant.y%></b>, x:<b><%= quadrant.x%></b></span>
+                    <span>x:<b><%= quadrant.x%></b>, y:<b><%= quadrant.y%></b></span>
                 </div>
 
         <% if(l===mapLength){ %> 
@@ -94,11 +94,11 @@
 
     .mapContainer {
         display: flex;
-        flex-flow: row;
+        flex-direction: column-reverse;
+
     }
     .mapColumn {
         display: flex;
-        flex-flow: column-reverse;
     }
 
     .mapPoint {

@@ -93,7 +93,7 @@ export default class RoverController {
             mapGrid: this.mapGrid,
             mapGridObstacles: this.mapGridObstacles,
             mapLength: this.mapLength,
-            message: 'The rover position is: {y:' + this.currentPosition.y + ', x:' + this.currentPosition.x + '}, directed to ' + this.currentDirection +'. <br> Insert commands above to move the rover.'
+            message: 'The rover position is: {x:' + this.currentPosition.x + ', y:' + this.currentPosition.y + '}, directed to ' + this.currentDirection +'. <br> Insert commands above to move the rover.'
         });
     };
 
@@ -142,7 +142,7 @@ export default class RoverController {
     };
 
     isThereObstacles(): boolean {
-        let collision = (obstacle: Point) => obstacle.y === this.futurePosition.y && obstacle.x === this.futurePosition.x;
+        let collision = (obstacle: Point) => obstacle.x === this.futurePosition.x && obstacle.y === this.futurePosition.y;
         if( this.mapGridObstacles.some(collision) ) {
             // abbiamo incontrato un ostacolo (muovere il rover fino a li e stampare la posizione dell'ostacolo)
             return true;
@@ -297,11 +297,11 @@ export default class RoverController {
     // todo: improve comment and fix mapGrid type in class declaration
     generateMap() { // generate cartesian map like: [{y:0, x:0}, {y:1, x:0}, ...]
         for(let i=0; i<=this.mapLength; i++) {
-            this.mapGrid.push({y:0, x:i}); // generate the first x row of the map like {y:0, x:0}...
+            this.mapGrid.push({x:0, y:i}); // generate the first x row of the map like {y:0, x:0}...
 
             // generate all the y layer based on the first x row of the map like {y:1, x:0}...
             for(let inner=1; inner<=this.mapLength; inner++) {
-                this.mapGrid.push({y:inner, x:i});
+                this.mapGrid.push({x:inner, y:i});
             }
         }
 
@@ -347,8 +347,9 @@ TODO STILE
  - how to improve debugging during deployment?
 
  LAST TODO
- - comunicate the error on obstacles
- - clean code
- - test
+ - invert Y-X (to follow the code istr.) 30m-1h?
+ - clean up the code 1h-1.30?
+ - 
+ - create test? 3h
 */
 
