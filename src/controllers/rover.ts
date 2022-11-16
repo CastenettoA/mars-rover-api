@@ -36,7 +36,7 @@ export default class RoverController {
 
 
     // todo: order class by init timing
-    constructor(mapLength = 1) {
+    constructor(mapLength = 2) {
         this.initializeRoutes();
 
         console.log('----------- init program ------------')
@@ -50,7 +50,10 @@ export default class RoverController {
 
     initializeRoutes() {
         this.router.get('/roverInfo', this.getRoverInfo);
+        this.router.get('/roverMove', this.roverMoveView);
         this.router.post('/roverMove', this.roverMove);
+
+        // this.router.post('/roverMove_real', this.roverMove_real);
     }
 
     getRoutesList() {
@@ -67,47 +70,58 @@ export default class RoverController {
             position: this.currentPosition,
             direction: this.currentDirection
         });
+    };
 
-        return res.status(200).json({
+    roverMoveView = async (req: Request, res: Response, next: NextFunction) => {
+        return res.status(200).render('roverMove', {
             position: this.currentPosition,
-            direction: this.currentDirection
+            direction: this.currentDirection,
+            obstaclePosition: false,
+            mapGrid: this.mapGrid,
+            mapGridObstacles: this.mapGridObstacles,
+            mapLength: this.mapLength,
         });
     };
 
     roverMove = async (req: Request, res: Response, next: NextFunction) => {
-        // let commands: ('f'|'b'|'r'|'l')[] = req.body.commands;
+        let commands: ('f'|'b'|'r'|'l')[] = req.body.commands.split(',');
         // todo: need test
-        let commands:string[] = (req.query.commands as string).split(',');
+        // console.log(req.query, req.body);
+        // let commands:string[] = (req.query.commands as string).split(',');
+        console.log(commands);
 
         commands.forEach((c, index) => {
             // calculate the future spatial position of the rover
-            // if the rover go out the limit of the map we execute the map function
-            // todo: not tested with large map 3,6....
+            // if the rover go out the limit of the map we execute the map function... todo: not tested with large map 3,6....
             this.setFuturePosition(c);
-            // console.log('rover future position ->', this.futurePosition);
             
             // check obstacles. If any block script; else move che rover and continue the loop.
             if( this.isThereObstacles() ) {
-                return res.status(200).json({
+                console.log('ostacolo trovato')
+                return res.status(200).render('roverMove', {
                     message: 'Obstacle found! We move the rover untile the last free position.',
-                    currentPosition: this.currentPosition,
+                    position: this.currentPosition,
+                    direction: this.currentDirection,
                     obstaclePosition: this.futurePosition,
-                    mapGridObstacles: this.mapGridObstacles
+                    mapGrid: this.mapGrid,
+                    mapGridObstacles: this.mapGridObstacles,
+                    mapLength: this.mapLength,
                 });
-
                 // @todo: interrompere la sequenza e restare in ascolto di nuovi comandi
             } else {
                 // no obstacle found, update the futurePosition
                 this.currentPosition = this.futurePosition; 
-                // console.log('no obstacle. change position. The new position of the Rover is:');
-                // console.log(this.currentPosition);
+                console.log('ostacolo non trovato, muovo...')
 
                 // if we are at the end of commands we return rover info
-                return res.status(200).json({
-                    message: 'We correcly move the rover! No obstacle found.',
-                    currentPosition: this.currentPosition,
-                    currentDirection: this.currentDirection,
+                return res.status(200).render('roverMove', {
+                    message: 'We move the rover. No ostacle found',
+                    position: this.currentPosition,
+                    direction: this.currentDirection,
+                    obstaclePosition: false,
+                    mapGrid: this.mapGrid,
                     mapGridObstacles: this.mapGridObstacles,
+                    mapLength: this.mapLength,
                 });
             }
         });

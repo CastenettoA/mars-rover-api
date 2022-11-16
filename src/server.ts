@@ -6,6 +6,9 @@ import morgan from 'morgan';
 // import routesBooks from './routes/books';
 import RoverController from './controllers/rover';
 
+// foor live reloading see:
+// https://stackoverflow.com/questions/45622125/how-can-i-add-live-reload-to-my-nodejs-server
+
 var fs = require('fs');
 var path = require('path');
 
@@ -13,7 +16,7 @@ const app: Express = express();
 const rover = new RoverController();
 
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '/views'))
+app.set('views', path.join(__dirname, '/views'));
 
 app.get('/', (req, res) => {
   res.status(200).render('index', { routesList: rover.getRoutesList() });
