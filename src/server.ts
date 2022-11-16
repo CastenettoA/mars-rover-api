@@ -6,17 +6,28 @@ import morgan from 'morgan';
 // import routesBooks from './routes/books';
 import RoverController from './controllers/rover';
 
-const router: Express = express();
+var fs = require('fs');
+var path = require('path');
+
+const app: Express = express();
+const rover = new RoverController();
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '/views'))
+
+app.get('/', (req, res) => {
+  res.status(200).render('index', { routesList: rover.getRoutesList() });
+});
 
 /** Logging */
-router.use(morgan('dev'));
+app.use(morgan('dev'));
 /** Parse the request */
-router.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false }));
 /** Takes care of JSON data */
-router.use(express.json());
+app.use(express.json());
 
 /** RULES OF OUR API */
-router.use((req, res, next) => {
+app.use((req, res, next) => {
     // set the CORS policy
     res.header('Access-Control-Allow-Origin', '*');
     // set the CORS headers
@@ -30,19 +41,21 @@ router.use((req, res, next) => {
 });
 
 /** Routes */
-// router.use('/', routesPosts);
-router.use(new RoverController().router);
-
+app.use(rover.router);
+ 
 /** Error handling */
-router.use((req, res, next) => {
-    const error = new Error('not found');
-    return res.status(404).json({
-        message: error.message
-    });
+app.use((req, res, next) => {
+    // const error = new Error('There is nothing here.!!!1');
+    // return res.status(404).json({
+    //     message: error.message,
+    //     apiList: rover.getRoutesList()
+    // });
+
+    res.status(404).render('404', { routesList: rover.getRoutesList() });
 });
 
 /** Server */
-const httpServer = http.createServer(router);
+const httpServer = http.createServer(app);
 const PORT: any = process.env.PORT ?? 6060;
 httpServer.listen(PORT, () => {
     console.log(`The server is running on port ${PORT}`);

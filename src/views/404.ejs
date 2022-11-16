@@ -1,0 +1,10 @@
+<link rel="stylesheet" href="https://unpkg.com/chota@latest">
+<style> body { margin: 2em; } </style>
+<h1>MarsRover / 404 not found 🦸‍♂️</h1>
+<p>That's the API list you can use:</p>
+
+<ul>
+  <% routesList.forEach((route)=>{ %>
+    <li><a href="/<%= route %>"><%= route %></a></li>
+  <% }); %>
+</ul>

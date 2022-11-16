@@ -1,0 +1,12 @@
+<link rel="stylesheet" href="https://unpkg.com/chota@latest">
+<style> body { margin: 2em; } </style>
+<h1>MarsRover / Home page.</h1>
+<p>That's the API list you can use:</p>
+
+<ul>
+  <% routesList.forEach((route)=>{ %>
+    <li><a href="/<%= route %>"><%= route %></a></li>
+  <% }); %>
+</ul>
+
+<h3>Rover Position and Map Planimetry</h3>

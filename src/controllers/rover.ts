@@ -9,7 +9,7 @@ import { Point } from '../interfaces/point';
 //     lastCoordChanged: 'x'|'y';  
 //     currentDirection: 'N'|'E'|'S'|'W'; 
 // }
-
+ 
 // interface marsMap {
 //     mapLength: number;
 //     mapGrid: Array<Object>; // [{ y: number, x: number}, ...}
@@ -39,6 +39,8 @@ export default class RoverController {
     constructor(mapLength = 1) {
         this.initializeRoutes();
 
+        console.log('----------- init program ------------')
+
         this.mapLength = mapLength; // set the map length
         this.generateMap(); // generate the map based on map length
         this.generateObstacles(); // generate some random obstacles in the map
@@ -51,9 +53,21 @@ export default class RoverController {
         this.router.post('/roverMove', this.roverMove);
     }
 
+    getRoutesList() {
+        return [
+            'roverInfo',
+            'roverMove'
+        ]
+    }
+
     /** PUBLIC ROUTES */
     // return the rover positon and rirection
     getRoverInfo = async (req: Request, res: Response, next: NextFunction) => {
+        return res.status(200).render('roverInfo', {
+            position: this.currentPosition,
+            direction: this.currentDirection
+        });
+
         return res.status(200).json({
             position: this.currentPosition,
             direction: this.currentDirection
@@ -65,28 +79,36 @@ export default class RoverController {
         // todo: need test
         let commands:string[] = (req.query.commands as string).split(',');
 
-        commands.forEach(c => {
+        commands.forEach((c, index) => {
             // calculate the future spatial position of the rover
             // if the rover go out the limit of the map we execute the map function
             // todo: not tested with large map 3,6....
             this.setFuturePosition(c);
             // console.log('rover future position ->', this.futurePosition);
-
             
             // check obstacles. If any block script; else move che rover and continue the loop.
             if( this.isThereObstacles() ) {
                 return res.status(200).json({
-                    
-                })
+                    message: 'Obstacle found! We move the rover untile the last free position.',
+                    currentPosition: this.currentPosition,
+                    obstaclePosition: this.futurePosition,
+                    mapGridObstacles: this.mapGridObstacles
+                });
 
-                console.log('il movimento richiesto collide con l\'ostacolo')
-                console.log('posizione ostacolo: ', this.futurePosition);
-                console.log('abbiamo mosso il Rover fino all\'ultimo movimento possibile.');
+                // @todo: interrompere la sequenza e restare in ascolto di nuovi comandi
             } else {
                 // no obstacle found, update the futurePosition
                 this.currentPosition = this.futurePosition; 
-                console.log('no obstacle. change position. The new position of the Rover is:');
-                console.log(this.currentPosition);
+                // console.log('no obstacle. change position. The new position of the Rover is:');
+                // console.log(this.currentPosition);
+
+                // if we are at the end of commands we return rover info
+                return res.status(200).json({
+                    message: 'We correcly move the rover! No obstacle found.',
+                    currentPosition: this.currentPosition,
+                    currentDirection: this.currentDirection,
+                    mapGridObstacles: this.mapGridObstacles,
+                });
             }
         });
     };
@@ -249,11 +271,10 @@ export default class RoverController {
 
     getRandomDirection(): any {
         const directions = ['N','E','S','W']; // all the possibile rover directions
-        const r = this.getRandomNumber(directions.length-1); // get a random number between 0 and direction.length (0-3)
+        const r:number = this.getRandomNumber(directions.length-1); // get a random number between 0 and direction.length (0-3)
         return directions[r]; // return a random direction
     }
 } 
-
 
 /*
 
