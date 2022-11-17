@@ -11,40 +11,59 @@ var morgan_1 = __importDefault(require("morgan"));
 // import routesPosts from './routes/posts';
 // import routesBooks from './routes/books';
 var rover_1 = __importDefault(require("./controllers/rover"));
-var router = (0, express_1.default)();
+// foor live reloading see:
+// https://stackoverflow.com/questions/45622125/how-can-i-add-live-reload-to-my-nodejs-server
+var fs = require("fs");
+var path = require("path");
+var app = (0, express_1.default)();
+var rover = new rover_1.default();
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "/views"));
+app.get("/", function (req, res) {
+    res.status(200).render("index", {
+        routesList: rover.getRoutesList(),
+        position: rover.currentPosition,
+        direction: rover.currentDirection,
+        obstaclePosition: false,
+        mapGrid: rover.mapGrid,
+        mapGridObstacles: rover.mapGridObstacles,
+        mapLength: rover.mapLength,
+    });
+});
 /** Logging */
-router.use((0, morgan_1.default)('dev'));
+app.use((0, morgan_1.default)("dev"));
 /** Parse the request */
-router.use(express_1.default.urlencoded({ extended: false }));
+app.use(express_1.default.urlencoded({ extended: false }));
 /** Takes care of JSON data */
-router.use(express_1.default.json());
+app.use(express_1.default.json());
 /** RULES OF OUR API */
-router.use(function (req, res, next) {
+app.use(function (req, res, next) {
     // set the CORS policy
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header("Access-Control-Allow-Origin", "*");
     // set the CORS headers
-    res.header('Access-Control-Allow-Headers', 'origin, X-Requested-With,Content-Type,Accept, Authorization');
+    res.header("Access-Control-Allow-Headers", "origin, X-Requested-With,Content-Type,Accept, Authorization");
     // set the CORS method headers
-    if (req.method === 'OPTIONS') {
-        res.header('Access-Control-Allow-Methods', 'GET PATCH DELETE POST');
+    if (req.method === "OPTIONS") {
+        res.header("Access-Control-Allow-Methods", "GET PATCH DELETE POST");
         return res.status(200).json({});
     }
     next();
 });
 /** Routes */
-// router.use('/', routesPosts);
-router.use(new rover_1.default().router);
+app.use(rover.router);
 /** Error handling */
-router.use(function (req, res, next) {
-    var error = new Error('not found');
-    return res.status(404).json({
-        message: error.message
-    });
+app.use(function (req, res, next) {
+    // const error = new Error('There is nothing here.!!!1');
+    // return res.status(404).json({
+    //     message: error.message,
+    //     apiList: rover.getRoutesList()
+    // });
+    res.status(404).render("404", { routesList: rover.getRoutesList() });
 });
 /** Server */
-var httpServer = http_1.default.createServer(router);
+var httpServer = http_1.default.createServer(app);
 var PORT = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 6060;
 httpServer.listen(PORT, function () {
     console.log("The server is running on port ".concat(PORT));
-    console.log('http://localhost:' + PORT);
+    console.log("http://localhost:" + PORT);
 });
