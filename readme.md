@@ -1,6 +1,7 @@
 # Mars Rover
-I'm part of the team that explores Mars by sending remotely controlled vehicles to the surface of the planet. 
-This is an API that translates the commands sent from earth to instructions that are understood by the rover.
+APP LINK: https://stormy-meadow-92152.herokuapp.com/
+*I'm part of the team that explores Mars by sending remotely controlled vehicles to the surface of the planet. 
+This is an API that translates the commands sent from earth to instructions that are understood by the rover.*
 
 ### Tech Stack
 * Nodejs + Express for backend server and API
