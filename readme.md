@@ -10,15 +10,17 @@ This is an API that translates the commands sent from earth to instructions that
 * XV as Test Runner
 
 ### Install
+```js
         git clone https://github.com/CastenettoA/marsRover.git
         npm install
         npm run dev // start the server
+```
 
 ### Unit Test
         npm run test
 
 ### Usage
-Se the home page on localhost:6060 to get started!
+Se the home page on https://localhost:6060 to get started!
 
 ### Programs Requirements
 * You are given the initial starting point (x,y) of a rover and the direction (N,S,E,W) it is facing.
