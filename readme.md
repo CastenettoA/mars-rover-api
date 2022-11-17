@@ -10,7 +10,7 @@ This is an API that translates the commands sent from earth to instructions that
 * XV as Test Runner
 
 ### Install
-```js
+```sh
         git clone https://github.com/CastenettoA/marsRover.git
         npm install
         npm run dev // start the server
