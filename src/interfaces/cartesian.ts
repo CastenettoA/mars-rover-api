@@ -1,4 +1,4 @@
-// type definition for cartesian mars values
+// type definition for cartesian values
 export interface Point {
   y: number;
   x: number;

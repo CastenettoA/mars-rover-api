@@ -2,6 +2,14 @@ import { Request, Response, NextFunction } from "express";
 import express from "express";
 import { Point, cartesianXyGrid, Directions, xyCoords } from "../interfaces/cartesian";
 
+
+/**
+ * The main class the controll the rover on Mars.
+ * The main function is roverMove use to move the rover on mars planet. It's accept [f,b,l,r] commnand.
+ * 
+ * On the class start up the costructor build the: MAP GRID, THE OBSTACLES AND THE INITIAL ROVER POSITION.
+ * List of aviable front end routes: ["mapInfo", "roverInfo", "roverMove"]
+ */
 export default class RoverController {
   router = express.Router();
 
@@ -12,8 +20,8 @@ export default class RoverController {
   mapObsaclesNumber: number;
   osbtacleFound = false;
 
-  defaultMapLength = 2;
-  defaultObstacleNumber = 4;
+  defaultMapLength = 6;
+  defaultObstacleNumber = 10;
 
   currentPosition: Point;
   futurePosition: Point;
@@ -38,8 +46,6 @@ export default class RoverController {
   getRoutesList() {
     return ["mapInfo", "roverInfo", "roverMove"];
   }
-
-  /** PUBLIC ROUTES */
 
   // simply return some map info
   getMapInfo = async (req: Request, res: Response, next: NextFunction) => {

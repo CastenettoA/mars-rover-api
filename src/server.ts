@@ -2,8 +2,6 @@
 import http from "http";
 import express, { Express } from "express";
 import morgan from "morgan";
-// import routesPosts from './routes/posts';
-// import routesBooks from './routes/books';
 import RoverController from "./controllers/rover";
 
 var fs = require("fs");

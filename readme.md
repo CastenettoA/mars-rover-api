@@ -3,21 +3,23 @@ I'm part of the team that explores Mars by sending remotely controlled vehicles 
 This is an API that translates the commands sent from earth to instructions that are understood by the rover.
 
 ### Tech Stack
-* Nodejs + Express for build backend server and API
-* Typescript for build the Rover Class
+* Nodejs + Express for backend server and API
+* Typescript for the Rover Class and the other part of the program
 * EJS as templating language to generate HTML markup
-* Chota as CSS-ready theme
+* Chota as CSS-ready theme design for front-end
 * XV as Test Runner
 
 ### Install
 ```sh
         git clone https://github.com/CastenettoA/marsRover.git
         npm install
-        npm run dev // start the server
+        npm run dev 
 ```
 
 ### Unit Test
+```sh
         npm run test
+```
 
 ### Usage
 Se the home page on https://localhost:6060 to get started!
