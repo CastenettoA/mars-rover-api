@@ -24,6 +24,7 @@ export default class RoverController {
   mapGrid: Array<Object> = []; // [{ y: number, x: number}, ...}
   mapGridObstacles: Array<Object> = []; // [{ y: number, x: number}, ...}
   mapObsaclesNumber: number;
+  osbtacleFound = false;
   // marsMap: marsMap;
 
   currentPosition: Point;
@@ -33,7 +34,7 @@ export default class RoverController {
   // roverInfo: roverInfo;
 
   // todo: order class by init timing
-  constructor(mapLength = 4) {
+  constructor(mapLength = 2) {
     this.initializeRoutes();
 
     console.log("----------- init program ------------");
@@ -79,80 +80,71 @@ export default class RoverController {
 
   roverMoveView = async (req: Request, res: Response, next: NextFunction) => {
     return res.status(200).render("roverMove", {
-      position: this.currentPosition,
-      direction: this.currentDirection,
+      roverPosition: this.currentPosition,
+      roverDirection: this.currentDirection,
       obstaclePosition: false,
+
       mapGrid: this.mapGrid,
       mapGridObstacles: this.mapGridObstacles,
       mapLength: this.mapLength,
-      message:
-        "The rover position is: {x:" +
-        this.currentPosition.x +
-        ", y:" +
-        this.currentPosition.y +
-        "}, directed to " +
-        this.currentDirection +
-        ". <br> Insert commands above to move the rover.",
+      message: `The rover position is: x:${this.currentPosition.x}, y:${this.currentPosition.y}, directed to ${this.currentDirection}. <br> Insert commands above to move the rover.`
     });
   };
 
   roverMove = async (req: Request, res: Response, next: NextFunction) => {
     let commands: ("f" | "b" | "r" | "l")[] = req.body.commands.split(",");
     // todo: need test
-    // console.log(req.query, req.body);
-    // let commands:string[] = (req.query.commands as string).split(',');
     console.log(commands);
 
-    commands.forEach((c, index) => {
-      // calculate the future spatial position of the rover
-      // if the rover go out the limit of the map we execute the map function... todo: not tested with large map 3,6....
-      this.setFuturePosition(c);
+    for (let index = 0; index < commands.length; ++index) {
+      this.setFuturePosition(commands[index]);
+      this.checkObstacles();
+      if (this.osbtacleFound) break;
+      else this.currentPosition = this.futurePosition;
+    }
 
-      // check obstacles. If any block script; else move che rover and continue the loop.
-      if (this.isThereObstacles()) {
-        console.log("ostacolo trovato");
-        return res.status(200).render("roverMove", {
-          message:
-            "Obstacle found! The rover is moved until the last free position.",
-          position: this.currentPosition,
-          direction: this.currentDirection,
-          obstaclePosition: this.futurePosition,
-          mapGrid: this.mapGrid,
-          mapGridObstacles: this.mapGridObstacles,
-          mapLength: this.mapLength,
-        });
-        // @todo: interrompere la sequenza e restare in ascolto di nuovi comandi
-      } else {
-        // no obstacle found, update the futurePosition
-        console.log(
-          "ostacolo non trovato, muovo...",
-          this.currentPosition,
-          this.futurePosition
-        );
-        this.currentPosition = { ...this.futurePosition };
-      }
-    });
+    if (this.osbtacleFound) this.returnMoveObstacle(res);
+    else this.returnMoveSuccess(res);
+  }
 
-    // if we are at the end of commands we return rover info
+  returnMoveObstacle(res) {
     return res.status(200).render("roverMove", {
-      message: "Rover moved. No ostacle found in the commands path.",
-      position: this.currentPosition,
-      direction: this.currentDirection,
-      obstaclePosition: false,
+      message: `Obstacle found at position x:${this.futurePosition.x}, y:${this.futurePosition.y}`,
+      roverPosition: this.currentPosition,
+      roverDirection: this.currentDirection,
+
       mapGrid: this.mapGrid,
       mapGridObstacles: this.mapGridObstacles,
       mapLength: this.mapLength,
     });
-  };
+  }
 
-  isThereObstacles(): boolean {
+  returnMoveSuccess(res) {
+    return res.status(200).render("roverMove", {
+      message: "Rover moved. No ostacle found in the commands path.",
+      roverPosition: this.currentPosition,
+      roverDirection: this.currentDirection,
+      obstaclePosition: false,
+
+      mapGrid: this.mapGrid,
+      mapGridObstacles: this.mapGridObstacles,
+      mapLength: this.mapLength,
+    });
+  }
+
+
+
+
+  checkObstacles(): boolean {
     let collision = (obstacle: Point) =>
       obstacle.x === this.futurePosition.x &&
       obstacle.y === this.futurePosition.y;
     if (this.mapGridObstacles.some(collision)) {
       // abbiamo incontrato un ostacolo (muovere il rover fino a li e stampare la posizione dell'ostacolo)
+      this.osbtacleFound = true;
       return true;
     } else {
+      this.osbtacleFound = false;
       return false; // no obstacle found in the futurePosition
     }
   }
@@ -325,12 +317,11 @@ export default class RoverController {
 
     // generate obstacles until we reach the obstaclesNumber
     while (mapGridObstacles.length < obstacles) {
-      let r = this.getRandomMapPosition(); // it's an obj like {y:1, x:2}
+      let randomPositionObj = this.getRandomMapPosition(); // it's an obj like {y:1, x:2}
 
-      if (!mapGridObstacles.some((element) => element == r)) {
-        // todo: make method?
+      if (!mapGridObstacles.some((OstacleObj) => JSON.stringify(OstacleObj) === JSON.stringify(randomPositionObj))) {
         // l'ostacolo non è già presente alla lista, lo aggiungo.
-        mapGridObstacles.push(r); // obstacle not found, i cana add it safely
+        mapGridObstacles.push(randomPositionObj); // obstacle not found, i cana add it safely
       }
     }
 
@@ -351,13 +342,16 @@ export default class RoverController {
     let pass = false;
 
     while (!pass) {
-      let r = this.getRandomMapPosition();
+      let randomPositionObj = this.getRandomMapPosition();
 
       // check if the random position collides with an obstacle, if not we keep it.
-      // todo: this is orrible
-      if (!this.mapGridObstacles.some((element) => element == r)) {
+      if (!this.mapGridObstacles.some((OstacleObj) => JSON.stringify(OstacleObj) === JSON.stringify(randomPositionObj))) {
         pass = true;
-        return r;
+        console.log('-----OBSTACLE COLLIDING TEST----')
+        console.log(randomPositionObj);
+        console.log(this.mapGridObstacles);
+        console.log('-----END OBSTACLE COLLIDING TEST----')
+        return randomPositionObj;
       }
     }
   }

@@ -14,11 +14,11 @@
                 
                    // Rover position check. If so add css class.
                    let isThereRover = false;
-                   if(quadrant.x === position.x && quadrant.y === position.y) isThereRover = true; else isThereRover = false;
+                   if(quadrant.x === roverPosition.x && quadrant.y === roverPosition.y) isThereRover = true; else isThereRover = false;
                     
                 %>
                 
-                <div class="mapPoint <% if(isThereObstacle){ %>obstacle<% } %> <% if(isThereRover){ %>rover <%=direction%><% } %>"
+                <div class="mapPoint <% if(isThereObstacle){ %>obstacle<% } %> <% if(isThereRover){ %>rover <%=roverDirection%><% } %>"
                     <% if(l===0){ %> style="border-bottom: 1px solid #ccc;" <%}%>
                     
                 >
@@ -144,4 +144,10 @@
     .mapPoint.E { border-right: 7px solid rgba(19, 143, 220, 0.6) !important; }
     .mapPoint.S { border-bottom: 7px solid rgba(19, 143, 220, 0.6) !important; }
     .mapPoint.W { border-left: 7px solid rgba(19, 143, 220, 0.6) !important; }
+
+    .message {
+        padding: .6em 1em;
+        background-color: beige;
+        border-radius: .3em;
+    }
 </style>
