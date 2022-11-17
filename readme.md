@@ -9,6 +9,17 @@ This is an API that translates the commands sent from earth to instructions that
 * Chota as CSS-ready theme
 * XV as Test Runner
 
+### Install
+        git clone https://github.com/CastenettoA/marsRover.git
+        npm install
+        npm run dev // start the server
+
+### Unit Test
+        npm run test
+
+### Usage
+Se the home page on localhost:6060 to get started!
+
 ### Programs Requirements
 * You are given the initial starting point (x,y) of a rover and the direction (N,S,E,W) it is facing.
 * The rover receives a character array of commands.
