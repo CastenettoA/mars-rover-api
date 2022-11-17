@@ -7,7 +7,7 @@ This is an API that translates the commands sent from earth to instructions that
 * Typescript for build the Rover Class
 * EJS as templating language to generate HTML markup
 * Chota as CSS-ready theme
-* XV for Unit Test
+* XV as Test Runner
 
 ### Programs Requirements
 * You are given the initial starting point (x,y) of a rover and the direction (N,S,E,W) it is facing.

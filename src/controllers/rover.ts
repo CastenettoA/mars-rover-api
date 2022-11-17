@@ -5,22 +5,26 @@ import { Point, cartesianXyGrid, Directions, xyCoords } from "../interfaces/cart
 export default class RoverController {
   router = express.Router();
 
+
   mapLength: number;
   mapGrid: cartesianXyGrid = [];
   mapGridObstacles: cartesianXyGrid = []; 
   mapObsaclesNumber: number;
   osbtacleFound = false;
 
+  defaultMapLength = 2;
+  defaultObstacleNumber = 4;
+
   currentPosition: Point;
   futurePosition: Point;
   lastCoordChanged: xyCoords;
   currentDirection: Directions;
 
-  constructor(mapLength = 2) {
+  constructor(mapLength?, obstacleNumber?) {
     this.initializeRoutes(); // init front-end routes
-    this.mapLength = mapLength; // set the map length
-    this.generateMap(); // generate the map based on map length
-    this.generateObstacles(); // generate some random obstacles in the map
+    this.mapLength = mapLength ? mapLength : this.defaultMapLength; // set the map length
+    this.mapGrid = this.generateMap(); // generate the map based on map length
+    this.mapGridObstacles = obstacleNumber ? this.generateObstacles(obstacleNumber) : this.generateObstacles(this.defaultObstacleNumber); // generate some random obstacles in the map
     this.initRoverPosition(); // generate a random rover position and direction (N,E,S,W)
   }
 
@@ -284,7 +288,7 @@ export default class RoverController {
   }
 
   // generate n. of obstacles in the map
-  generateObstacles(obstacles = 4): void {
+  generateObstacles(obstacles): cartesianXyGrid {
     const mapGridObstacles: cartesianXyGrid = [];
 
     // generate obstacles until we reach the obstaclesNumber
@@ -296,7 +300,7 @@ export default class RoverController {
       }
     }
 
-    this.mapGridObstacles = mapGridObstacles;
+    return mapGridObstacles;
   }
 
   // return a random map position like {y:1, x:2}
@@ -319,17 +323,20 @@ export default class RoverController {
     }
   }
 
-  // generate the mars cartesian bidimensional map like: [{x:0, y:0}, {x:1, y:0}, ...]
-  generateMap(): void {
-    for (let i = 0; i <= this.mapLength; i++) {
-      this.mapGrid.push({ x: 0, y: i }); // generate the first x row of the map like {y:0, x:0}...
-
-      // generate all the y layer based on the first x row of the map like {y:1, x:0}...
-      for (let inner = 1; inner <= this.mapLength; inner++) {
-        this.mapGrid.push({ x: inner, y: i });
+    // generate the mars cartesian bidimensional map like: [{x:0, y:0}, {x:1, y:0}, ...]
+    generateMap(): cartesianXyGrid {
+      let mapGrid:cartesianXyGrid = [];
+      for (let i = 0; i <= this.mapLength; i++) {
+        mapGrid.push({ x: 0, y: i }); // generate the first x row of the map like {y:0, x:0}...
+  
+        // generate all the y layer based on the first x row of the map like {y:1, x:0}...
+        for (let inner = 1; inner <= this.mapLength; inner++) {
+          mapGrid.push({ x: inner, y: i });
+        }
       }
+
+      return mapGrid;
     }
-  }
 
   // initialize a rover random map position and direction
   initRoverPosition(): void {
