@@ -1,6 +1,7 @@
 <%- include('header.ejs') %>
-<h1>MarsRover / Rover Info</h1>
+<h1><a href="/">MarsRover</a> / Rover Info</h1>
 
 <p>Posizione: <b>{ x:<%= position.x %>, y:<%= position.y %> }</b></p>
 <p>Direzione: <b><%= direction %></b></p>
 
+<%- include('map.ejs') %> 
