@@ -31,3 +31,15 @@ Se the home page on https://localhost:6060 to get started!
 * Implement commands that turn the rover left/right (l,r).
 * Implement wrapping from one edge of the grid to another. (planets are spheres after all)
 * Implement obstacle detection before each move to a new square. If a given sequence of commands encounters an obstacle, the rover moves up to the last possible point, aborts the sequence and reports the obstacle.
+
+### Live Site
+The app is deployed with a free instance on Heroku.
+Link: https://stormy-meadow-92152.herokuapp.com/
+
+Some useful heroku command: 
+* heroku login
+* heroku create
+* git push heroku master (for deploy)
+* heroku ps:scale web=1
+* heroku open
+* heroku logs --tail
