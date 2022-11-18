@@ -20,7 +20,7 @@ This is an API that translates the commands sent from earth to instructions that
 
 ### Unit Test
 ```sh
-        npm run test
+        npm run test #for execute code test
 ```
 
 ### Usage
