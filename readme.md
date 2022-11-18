@@ -24,7 +24,7 @@ This is an API that translates the commands sent from earth to instructions that
 ```
 
 ### Usage
-Se the home page on https://localhost:6060 to get started!
+Start the local server with **npm run dev** and see the home page on https://localhost:6060 to get started!
 
 ### Programs Requirements
 * You are given the initial starting point (x,y) of a rover and the direction (N,S,E,W) it is facing.
