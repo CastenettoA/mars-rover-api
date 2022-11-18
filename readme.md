@@ -26,10 +26,9 @@ This is an API that translates the commands sent from earth to instructions that
 ### Usage
 Start the local server with **npm run dev** and see the home page on https://localhost:6060 to get started!
 These are the available routes:
-* /roverInfo *(get) return some simple rover info*
-* /mapInfo *(get) return some simple map info*
-* /moveRover *(get|post) page to move the rover on the map*
-Enjoy 🤖
+* **/roverInfo** *(get) return some simple rover info*
+* **/mapInfo** *(get) return some simple map info*
+* **/moveRover** *(get|post) page to move the rover on the map*
 
 ### Programs Requirements
 * You are given the initial starting point (x,y) of a rover and the direction (N,S,E,W) it is facing.
