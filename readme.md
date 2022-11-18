@@ -15,12 +15,12 @@ This is an API that translates the commands sent from earth to instructions that
 ```sh
         git clone https://github.com/CastenettoA/marsRover.git
         npm install
-        npm run dev #for start up local dev server
+        npm run dev # to start up local dev server
 ```
 
 ### Unit Test
 ```sh
-        npm run test #for execute code test
+        npm run test # to perform code test
 ```
 
 ### Usage
