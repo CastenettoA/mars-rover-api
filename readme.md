@@ -6,7 +6,7 @@ This is an API that translates the commands sent from earth to instructions that
 
 ### Tech Stack
 * Node.js + Express for backend server and API
-* Typescript
+* TypeScript
 * EJS as templating language engine (for the views)
 * Chota.css as CSS-ready theme for the front-end
 * XV as Test Runner
