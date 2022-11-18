@@ -6,9 +6,9 @@ This is an API that translates the commands sent from earth to instructions that
 
 ### Tech Stack
 * Nodejs + Express for backend server and API
-* Typescript for the Rover Class and the other part of the program
-* EJS as templating language to generate HTML markup
-* Chota as CSS-ready theme design for front-end
+* Typescript
+* EJS as templating language engine (for the views)
+* Chota.css as CSS-ready theme for the front-end
 * XV as Test Runner
 
 ### Install
