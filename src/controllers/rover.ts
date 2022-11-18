@@ -4,11 +4,11 @@ import { Point, cartesianXyGrid, Directions, xyCoords } from "../interfaces/cart
 
 
 /**
- * The main class the controll the rover on Mars.
- * The main function is roverMove use to move the rover on mars planet. It's accept [f,b,l,r] commnand.
+ * The main class that controll the Rover on Mars Planet.
+ * The main function is roverMove() function, and is used to move the rover on mars planet. It's accept [f,b,l,r] string commnand.
  * 
- * On the class start up the costructor build the: MAP GRID, THE OBSTACLES AND THE INITIAL ROVER POSITION.
- * List of aviable front end routes: ["mapInfo", "roverInfo", "roverMove"]
+ * On the class start-up the costructor build the: MAP GRID, THE OBSTACLES AND THE INITIAL ROVER POSITION.
+ * List of available front-end routes: ["mapInfo", "roverInfo", "roverMove"]
  */
 export default class RoverController {
   router = express.Router();
@@ -58,7 +58,7 @@ export default class RoverController {
     });
   };
 
-  // return the rover positon and rirection
+  // return the rover positon and direction
   getRoverInfo = async (req: Request, res: Response, next: NextFunction) => {
     return res.status(200).render("roverInfo", {
       position: this.currentPosition,
@@ -86,7 +86,7 @@ export default class RoverController {
     });
   };
 
-  // function responsible to move the rover, check obstacles, report success/error
+  // function responsable to move the rover, check obstacles, report success/error
   roverMove = async (req: Request, res: Response, next: NextFunction) => {
     let commands = req.body.commands.split(',') as ("f" | "b" | "r" | "l")[];
 

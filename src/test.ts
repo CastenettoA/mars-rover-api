@@ -1,6 +1,6 @@
 /**  IMPORTANT NOTE FOR READERS
-* For this program I not coose the TDD approach, instead a create the test after the develop of the code.
-* The test are not complete because is only an exercise, not a real program.
+* For this program I not choose the TDD approach, instead I create these test after the develop of the code.
+* These test are not complete, only a scratch of a real developing.
 */
 
 // import { Request, Response, NextFunction } from "express";
