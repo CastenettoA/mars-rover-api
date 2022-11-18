@@ -5,7 +5,7 @@ Live link: https://stormy-meadow-92152.herokuapp.com/
 This is an API that translates the commands sent from earth to instructions that are understood by the rover.*
 
 ### Tech Stack
-* Nodejs + Express for backend server and API
+* Node.js + Express for backend server and API
 * Typescript
 * EJS as templating language engine (for the views)
 * Chota.css as CSS-ready theme for the front-end
