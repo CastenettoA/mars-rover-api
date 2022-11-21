@@ -55,6 +55,11 @@ export default class RoverController {
   getRoutesList_detailedJson = async (req: Request, res: Response, next: NextFunction) => {
     return res.status(200).json([
       {
+        path: '/routeListJson',
+        type: 'get',
+        description: 'Return an array of objects of all avaiable API endpoint. [{path: string, type: string, description: string}]'
+      },
+      {
         path: '/mapInfo',
         type: 'get',
         description: 'Simply return map all map info (mapLength, mapGrid, mapGridObstacles)'
@@ -68,7 +73,7 @@ export default class RoverController {
         path: '/roverMove',
         type: 'post',
         description: 'Accept an array of [f,b,r,l] letters and move the rover on the map. Return new rover position or an obstacle if found'
-      }
+      },
     ]);
   };
 
