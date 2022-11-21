@@ -13,7 +13,6 @@ import { Point, cartesianXyGrid, Directions, xyCoords } from "../interfaces/cart
 export default class RoverController {
   router = express.Router();
 
-
   mapLength: number;
   mapGrid: cartesianXyGrid = [];
   mapGridObstacles: cartesianXyGrid = []; 
@@ -37,15 +36,41 @@ export default class RoverController {
   }
 
   initializeRoutes() {
-    this.router.get("/mapInfo", this.getMapInfo);
+    // todo: in the next API redesign we need to follow a pattern, this is a little bit not organized,
+    // but this program is very little, so this will not couse big problem
     this.router.get("/roverInfo", this.getRoverInfo);
     this.router.get("/roverMove", this.roverMoveView);
     this.router.post("/roverMove", this.roverMove);
+
+    // json only api endpoint
+    this.router.get("/routeListJson", this.getRoutesList_detailedJson);
+    this.router.get("/mapInfo", this.getMapInfo);
   }
 
   getRoutesList() {
     return ["mapInfo", "roverInfo", "roverMove"];
   }
+
+  // get all the API endpoint
+  getRoutesList_detailedJson = async (req: Request, res: Response, next: NextFunction) => {
+    return res.status(200).json([
+      {
+        path: '/mapInfo',
+        type: 'get',
+        description: 'Simply return map all map info (mapLength, mapGrid, mapGridObstacles)'
+      },
+      {
+        path: '/roverInfo',
+        type: 'get',
+        description: 'Simply return the rover position (currentPosition, currentDirection) and also all the map info.'
+      },
+      {
+        path: '/roverMove',
+        type: 'post',
+        description: 'Accept an array of [f,b,r,l] letters and move the rover on the map. Return new rover position or an obstacle if found'
+      }
+    ]);
+  };
 
   // simply return some map info
   getMapInfo = async (req: Request, res: Response, next: NextFunction) => {

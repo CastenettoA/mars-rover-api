@@ -1,13 +1,17 @@
 "use strict";
+/**  IMPORTANT NOTE FOR READERS
+* For this program I not choose the TDD approach, instead I create these test after the develop of the code.
+* These test are not complete, only a scratch of a real developing.
+*/
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.testGetRandomDirection = exports.testGetRandomNumber = exports.testGenerateObstacles = exports.testGenerateMap = exports.testGetRouteList = void 0;
+// import { Request, Response, NextFunction } from "express";
 var assert_1 = require("assert");
 var rover_1 = __importDefault(require("./controllers/rover"));
 var roverTest = new rover_1.default();
-// This is plain Node code, there's no xv API
 function testGetRouteList() {
     assert_1.strict.deepStrictEqual(roverTest.getRoutesList(), ["mapInfo", "roverInfo", "roverMove"]);
 }
@@ -29,10 +33,8 @@ function testGetRandomNumber() {
 }
 exports.testGetRandomNumber = testGetRandomNumber;
 function testGetRandomDirection() {
-    var direction = 'N';
+    var direction = roverTest.getRandomDirection();
     assert_1.strict.ok(typeof (direction) == 'string');
     (0, assert_1.strict)(['N', 'E', 'S', 'W'].find(function (el) { return el.includes(direction); }));
 }
 exports.testGetRandomDirection = testGetRandomDirection;
-// this is not a "real" program but only an exercise so the Unit Test are not complete.
-// Is not a TDD enviroment.

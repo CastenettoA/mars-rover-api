@@ -8,8 +8,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = __importDefault(require("http"));
 var express_1 = __importDefault(require("express"));
 var morgan_1 = __importDefault(require("morgan"));
-// import routesPosts from './routes/posts';
-// import routesBooks from './routes/books';
 var rover_1 = __importDefault(require("./controllers/rover"));
 var fs = require("fs");
 var path = require("path");

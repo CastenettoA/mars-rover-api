@@ -51,6 +51,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
+/**
+ * The main class that controll the Rover on Mars Planet.
+ * The main function is roverMove() function, and is used to move the rover on mars planet. It's accept [f,b,l,r] string commnand.
+ *
+ * On the class start-up the costructor build the: MAP GRID, THE OBSTACLES AND THE INITIAL ROVER POSITION.
+ * List of available front-end routes: ["mapInfo", "roverInfo", "roverMove"]
+ */
 var RoverController = /** @class */ (function () {
     function RoverController(mapLength, obstacleNumber) {
         var _this = this;
@@ -58,9 +65,30 @@ var RoverController = /** @class */ (function () {
         this.mapGrid = [];
         this.mapGridObstacles = [];
         this.osbtacleFound = false;
-        this.defaultMapLength = 2;
-        this.defaultObstacleNumber = 4;
-        /** PUBLIC ROUTES */
+        this.defaultMapLength = 6;
+        this.defaultObstacleNumber = 10;
+        // get all the API endpoint
+        this.getRoutesList_detailedJson = function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, res.status(200).json([
+                        {
+                            path: '/mapInfo',
+                            type: 'get',
+                            description: 'Simply return map all map info (mapLength, mapGrid, mapGridObstacles)'
+                        },
+                        {
+                            path: '/roverInfo',
+                            type: 'get',
+                            description: 'Simply return the rover position (currentPosition, currentDirection) and also all the map info.'
+                        },
+                        {
+                            path: '/roverMove',
+                            type: 'post',
+                            description: 'Accept an array of [f,b,r,l] letters and move the rover on the map. Return new rover position or an obstacle if found'
+                        }
+                    ])];
+            });
+        }); };
         // simply return some map info
         this.getMapInfo = function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -73,7 +101,7 @@ var RoverController = /** @class */ (function () {
                     })];
             });
         }); };
-        // return the rover positon and rirection
+        // return the rover positon and direction
         this.getRoverInfo = function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, res.status(200).render("roverInfo", {
@@ -101,7 +129,7 @@ var RoverController = /** @class */ (function () {
                     })];
             });
         }); };
-        // function responsible to move the rover, check obstacles, report success/error
+        // function responsable to move the rover, check obstacles, report success/error
         this.roverMove = function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
             var commands, index;
             return __generator(this, function (_a) {
@@ -128,10 +156,14 @@ var RoverController = /** @class */ (function () {
         this.initRoverPosition(); // generate a random rover position and direction (N,E,S,W)
     }
     RoverController.prototype.initializeRoutes = function () {
-        this.router.get("/mapInfo", this.getMapInfo);
+        // todo: in the next API redesign we need to follow a pattern, this is a little bit not organized,
+        // but this program is very little, so this will not couse big problem
         this.router.get("/roverInfo", this.getRoverInfo);
         this.router.get("/roverMove", this.roverMoveView);
         this.router.post("/roverMove", this.roverMove);
+        // json only api endpoint
+        this.router.get("/routeListJson", this.getRoutesList_detailedJson);
+        this.router.get("/mapInfo", this.getMapInfo);
     };
     RoverController.prototype.getRoutesList = function () {
         return ["mapInfo", "roverInfo", "roverMove"];
