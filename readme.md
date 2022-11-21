@@ -5,8 +5,8 @@ Live link: https://stormy-meadow-92152.herokuapp.com/
 This is an API that translates the commands sent from earth to instructions that are understood by the rover.*
 
 ### Tech Stack
-* Nodejs + Express for backend server and API
-* Typescript
+* Node.js + Express for backend server and API
+* TypeScript
 * EJS as templating language engine (for the views)
 * Chota.css as CSS-ready theme for the front-end
 * XV as Test Runner
@@ -15,16 +15,21 @@ This is an API that translates the commands sent from earth to instructions that
 ```sh
         git clone https://github.com/CastenettoA/marsRover.git
         npm install
-        npm run dev 
+        npm run dev # to start up local dev server
 ```
 
 ### Unit Test
 ```sh
-        npm run test
+        npm run test # to perform code test
 ```
 
 ### Usage
-Se the home page on https://localhost:6060 to get started!
+Start the local server with **npm run dev** and see the home page on https://localhost:6060 to get started!
+
+These are the available routes:
+* **/roverInfo** *(get) return some simple rover info*
+* **/mapInfo** *(get) return some simple map info*
+* **/moveRover** *(get|post) page to move the rover on the map*
 
 ### Programs Requirements
 * You are given the initial starting point (x,y) of a rover and the direction (N,S,E,W) it is facing.
