@@ -38,7 +38,7 @@ export default class RoverController {
   initializeRoutes() {
     // todo: in the next API redesign we need to follow a pattern, this is a little bit not organized,
     // but this program is very little, so this will not couse big problem
-    this.router.get("/roverInfo", this.getRoverInfo);
+    this.router.get("/roverInfo", this.getRoverInfo);    
     this.router.get("/roverMove", this.roverMoveView);
     this.router.post("/roverMove", this.roverMove);
 
