@@ -2,6 +2,7 @@
 import http from "http";
 import express, { Express } from "express";
 import morgan from "morgan";
+import cors from 'cors';
 import RoverController from "./controllers/rover";
 
 var fs = require("fs");
@@ -31,6 +32,9 @@ app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: false }));
 /** Takes care of JSON data */
 app.use(express.json());
+
+/* make the API public, allowing all origins */
+app.use(cors({ origin: '*'}));
 
 /** RULES OF OUR API */
 app.use((req, res, next) => {
