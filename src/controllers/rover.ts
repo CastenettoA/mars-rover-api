@@ -116,19 +116,61 @@ export default class RoverController {
     });
   };
 
-  // function responsable to move the rover, check obstacles, report success/error
-  roverMove = async (req: Request, res: Response, next: NextFunction) => {
-    let commands = req.body.commands.split(',') as ("f" | "b" | "r" | "l")[];
+  // check if commands are formatted correctly, is so return true. if not return false to make an error
+  checkCommands(commands) {
+    let c = commands.split(',');
+    let valid = true;
 
-    for (let index = 0; index < commands.length; ++index) {
-      this.setFuturePosition(commands[index]);
-      this.checkObstacles();
-      if (this.osbtacleFound) break;
-      else this.currentPosition = this.futurePosition;
+    for(let i=0; i<c.length; i++) {
+      let el = c[i];
+
+      if(el && typeof el == 'string' && (el == 'f' || el == 'b' || el == 'r' || el == 'l')) {
+        // command is valid
+      } else {
+        valid = false;
+      }
     }
 
-    if (this.osbtacleFound) this.returnMoveObstacle(res);
-    else this.returnMoveSuccess(res);
+    return (valid) ? true : false;
+  }
+
+  // function responsable to move the rover, check obstacles, report success/error
+  roverMove = async (req: Request, res: Response, next: NextFunction) => {
+    let commands = req.body.commands;
+    console.log(req.body.commands);
+    
+    // check if command
+    if(commands && this.checkCommands(commands)) {
+      commands = req.body.commands.split(',') as ("f" | "b" | "r" | "l")[];
+
+      for (let index = 0; index < commands.length; ++index) {
+        this.setFuturePosition(commands[index], res);
+        this.checkObstacles();
+        if (this.osbtacleFound) break;
+        else this.currentPosition = this.futurePosition;
+      }
+  
+      if (this.osbtacleFound) this.returnMoveObstacle(res);
+      else this.returnMoveSuccess(res);
+
+    } else {
+      this.returnRoverCommandError(commands, res);
+    }
+  }
+
+  returnRoverCommandError(command, res: Response) {
+    if(command) {
+      return res.status(400).json({
+        yourCommand: command,
+        message: 'Commands string is not valid. Command have to be a string divided by a commas like "f,f,b,r"'
+      });
+    } else {
+      return res.status(400).json({
+        yourCommand: command,
+        message: 'Commands string is undefined. Command have to be a string divided by a commas like "f,f,b,r"'
+      });
+    }
+
   }
 
   // return a errore message with the obstacle position.
@@ -173,7 +215,7 @@ export default class RoverController {
     }
   }
 
-  setFuturePosition(command: string) {
+  setFuturePosition(command: string, res: Response) {
     this.futurePosition = { ...this.currentPosition }; 
 
     // call the corret move function depending on current command
@@ -192,16 +234,12 @@ export default class RoverController {
         break;
 
       default:
-        this.wrongCommand();
+        this.returnRoverCommandError(command, res);
         break;
     }
 
     // we execute wrapping, if needed
     this.wrapping();
-  }
-
-  wrongCommand() {
-    console.log('command it\'s not valid');
   }
 
   // 4 set of functions to move the rover on the map (directions aware)
