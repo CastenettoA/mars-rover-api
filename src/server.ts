@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 /* Enable All CORS request (Cross Origin Resource Sharing) */
-app.use(cors());
+// app.use(cors());
 
 /** RULES OF OUR API */
 app.use((req, res, next) => {
