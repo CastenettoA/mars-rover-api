@@ -14,18 +14,6 @@ const rover = new RoverController();
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));
 
-app.get("/", (req, res) => {
-  res.status(200).render("index", {
-    routesList: rover.getRoutesList(),
-    roverPosition: rover.currentPosition,
-    roverDirection: rover.currentDirection,
-    obstaclePosition: false,
-    mapGrid: rover.mapGrid,
-    mapGridObstacles: rover.mapGridObstacles,
-    mapLength: rover.mapLength,
-  });
-});
-
 /** Logging */
 app.use(morgan("dev"));
 /** Parse the request */
@@ -33,8 +21,8 @@ app.use(express.urlencoded({ extended: false }));
 /** Takes care of JSON data */
 app.use(express.json());
 
-/* make the API public, allowing all origins */
-app.use(cors({ origin: '*'}));
+/* Enable All CORS request (Cross Origin Resource Sharing) */
+app.use(cors());
 
 /** RULES OF OUR API */
 app.use((req, res, next) => {
@@ -46,6 +34,18 @@ app.use((req, res, next) => {
     return res.status(200).json({});
   }
   next();
+});
+
+app.get("/", (req, res) => {
+  res.status(200).render("index", {
+    routesList: rover.getRoutesList(),
+    roverPosition: rover.currentPosition,
+    roverDirection: rover.currentDirection,
+    obstaclePosition: false,
+    mapGrid: rover.mapGrid,
+    mapGridObstacles: rover.mapGridObstacles,
+    mapLength: rover.mapLength,
+  });
 });
 
 /** Routes */
