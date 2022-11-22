@@ -34,9 +34,13 @@ app.use(express.json());
 
 /** RULES OF OUR API */
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "origin, X-Requested-With, Content-Type, Accept, Authorization");
-  res.header("Access-Control-Allow-Methods", "GET HEAD OPTIONS POST PUT");
+  res.header("Access-Control-Allow-Origin", "*");   // set the CORS policy
+  res.header("Access-Control-Allow-Headers","origin, X-Requested-With,Content-Type,Accept, Authorization"); // set the CORS headers
+  // set the CORS method headers
+  if (req.method === "OPTIONS") {
+    res.header("Access-Control-Allow-Methods", "GET PATCH DELETE POST");
+    return res.status(200).json({});
+  }
   next();
 });
 
