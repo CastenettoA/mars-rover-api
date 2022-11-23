@@ -48,5 +48,6 @@ Some useful heroku command:
 * heroku create
 * git push heroku master (for deploy)
 * heroku ps:scale web=1
+* heroku ps:restart
 * heroku open
 * heroku logs --tail

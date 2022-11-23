@@ -137,7 +137,9 @@ export default class RoverController {
   // function responsable to move the rover, check obstacles, report success/error
   roverMove = async (req: Request, res: Response, next: NextFunction) => {
     let commands = req.body.commands;
-    console.log(req.body.commands);
+    let responseFormat = (req.body.format == 'json') ? 'json' : false;
+
+    console.log(responseFormat);
     
     // check if command
     if(commands && this.checkCommands(commands)) {
@@ -150,8 +152,8 @@ export default class RoverController {
         else this.currentPosition = this.futurePosition;
       }
   
-      if (this.osbtacleFound) this.returnMoveObstacle(res);
-      else this.returnMoveSuccess(res);
+      if (this.osbtacleFound) this.returnMoveObstacle(res, responseFormat);
+      else this.returnMoveSuccess(res, responseFormat);
 
     } else {
       this.returnRoverCommandError(commands, res);
@@ -174,30 +176,55 @@ export default class RoverController {
   }
 
   // return a errore message with the obstacle position.
-  returnMoveObstacle(res) {
-    return res.status(200).render("roverMove", {
-      message: `Obstacle found at position x:${this.futurePosition.x}, y:${this.futurePosition.y}`,
-      roverPosition: this.currentPosition,
-      roverDirection: this.currentDirection,
-
-      mapGrid: this.mapGrid,
-      mapGridObstacles: this.mapGridObstacles,
-      mapLength: this.mapLength,
-    });
+  returnMoveObstacle(res, responseFormat: string|boolean) {
+    if(responseFormat == 'json') {
+      return res.status(200).json({
+        message: `Obstacle found at position x:${this.futurePosition.x}, y:${this.futurePosition.y}`,
+        roverPosition: this.currentPosition,
+        roverDirection: this.currentDirection,
+  
+        mapGrid: this.mapGrid,
+        mapGridObstacles: this.mapGridObstacles,
+        mapLength: this.mapLength,
+      });
+    } else {
+      return res.status(200).render("roverMove", {
+        message: `Obstacle found at position x:${this.futurePosition.x}, y:${this.futurePosition.y}`,
+        roverPosition: this.currentPosition,
+        roverDirection: this.currentDirection,
+  
+        mapGrid: this.mapGrid,
+        mapGridObstacles: this.mapGridObstacles,
+        mapLength: this.mapLength,
+      });
+    }
   }
 
   // return a succes message. The move was moved with no obstacle in the path
-  returnMoveSuccess(res) {
-    return res.status(200).render("roverMove", {
-      message: "Rover moved. No ostacle found in the commands path.",
-      roverPosition: this.currentPosition,
-      roverDirection: this.currentDirection,
-      obstaclePosition: false,
-
-      mapGrid: this.mapGrid,
-      mapGridObstacles: this.mapGridObstacles,
-      mapLength: this.mapLength,
-    });
+  returnMoveSuccess(res, responseFormat:string|boolean) {
+    if(responseFormat == 'json') {
+      return res.status(200).json({
+        message: "Rover moved. No ostacle found in the commands path.",
+        roverPosition: this.currentPosition,
+        roverDirection: this.currentDirection,
+        obstaclePosition: false,
+  
+        mapGrid: this.mapGrid,
+        mapGridObstacles: this.mapGridObstacles,
+        mapLength: this.mapLength,
+      });
+    } else {
+      return res.status(200).render("roverMove", {
+        message: "Rover moved. No ostacle found in the commands path.",
+        roverPosition: this.currentPosition,
+        roverDirection: this.currentDirection,
+        obstaclePosition: false,
+  
+        mapGrid: this.mapGrid,
+        mapGridObstacles: this.mapGridObstacles,
+        mapLength: this.mapLength,
+      });
+    }
   }
 
   // function that check (before to move the rover),
