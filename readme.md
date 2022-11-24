@@ -1,5 +1,5 @@
 # Mars Rover 🪐🤖
-Live link: https://stormy-meadow-92152.herokuapp.com/
+[Live Website link (by Netlify)](https://stormy-meadow-92152.herokuapp.com/)
 
 *I'm part of the team that explores Mars by sending remotely controlled vehicles to the surface of the planet. 
 This is an API that translates the commands sent from earth to instructions that are understood by the rover.*
