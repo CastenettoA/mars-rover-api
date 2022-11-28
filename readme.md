@@ -1,15 +1,16 @@
-# Mars Rover 🪐🤖
+# Mars Rover API 🪐🤖
 Live link: https://stormy-meadow-92152.herokuapp.com/
 
 *I'm part of the team that explores Mars by sending remotely controlled vehicles to the surface of the planet. 
 This is an API that translates the commands sent from earth to instructions that are understood by the rover.*
 
 ### Tech Stack
-* Node.js + Express for backend server and API
+* Node.js + Express (backend server, API, rover class)
 * TypeScript
-* EJS as templating language engine (for the views)
+* EJS as templating language engine (for the /views)
 * Chota.css as CSS-ready theme for the front-end
 * XV as Test Runner
+* A simple db.json file that is used like a database with the help of DatabaseController class.
 
 ### Install
 ```sh

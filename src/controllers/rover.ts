@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import express from "express";
 import { Point, cartesianXyGrid, Directions, xyCoords } from "../interfaces/cartesian";
+import { DatabaseController } from './database';
 
 
 /**
@@ -8,31 +9,86 @@ import { Point, cartesianXyGrid, Directions, xyCoords } from "../interfaces/cart
  * The main function is roverMove() function, and is used to move the rover on mars planet. It's accept [f,b,l,r] string commnand.
  * 
  * On the class start-up the costructor build the: MAP GRID, THE OBSTACLES AND THE INITIAL ROVER POSITION.
- * List of available front-end routes: ["mapInfo", "roverInfo", "roverMove"]
+ * List of av ailable front-end routes: ["mapInfo", "roverInfo", "roverMove"]
  */
+
+// export class RouteController {
+//   router = express.Router();
+
+//   constructor() {
+//     this.initRoutes();
+//   }
+
+//   private initRoutes() {
+//     // todo: in the next API redesign we need to follow a pattern, this is a little bit not organized,
+//     // but this program is very little, so this will not couse big problem
+//     this.router.get("/roverInfo", RoverController.getRoverInfo());    
+//     this.router.get("/roverMove", RoverController.roverMoveView);
+//     this.router.post("/roverMove", RoverController.roverMove);
+
+//     // json only api endpoint
+//     this.router.get("/routeListJson", RoverController.getRoutesList_detailedJson);
+//     this.router.get("/mapInfo", RoverController.getMapInfo);
+//   }
+// }
+
+export class MarsMap {
+
+}
+
+
 export default class RoverController {
   router = express.Router();
 
+  defaultMapLength = 6;
+  defaultObstacleNumber = 10;
+
+  // rover, map and ostacle info (use only on resetMap function)
   mapLength: number;
   mapGrid: cartesianXyGrid = [];
   mapGridObstacles: cartesianXyGrid = []; 
   mapObsaclesNumber: number;
   osbtacleFound = false;
-
-  defaultMapLength = 6;
-  defaultObstacleNumber = 10;
-
   currentPosition: Point;
-  futurePosition: Point;
-  lastCoordChanged: xyCoords;
   currentDirection: Directions;
+  futurePosition: Point;
+
+  lastCoordChanged: xyCoords; // used for position wrapping
+
+  dbData: any; // obj retrived from json db file (contain all map and rover info)
+
+  /** function that can rebuild map, obstacles and rover position
+   * in other words: call it and destroy the Mars Planet (the map) and re-build it randomly!
+   */
+  resetMap(mapLength?, obstacleNumber?) {
+    // generate random values (generate map, obstacle on the map and place the rover randomly on the map)
+    this.mapLength = mapLength ? mapLength : this.defaultMapLength;
+    const mlenth = mapLength ? mapLength : this.defaultMapLength;
+    const map = this.generateMap();
+    this.mapGrid = [...map];
+    const obstacles = obstacleNumber ? this.generateObstacles(obstacleNumber) : this.generateObstacles(this.defaultObstacleNumber);
+    this.mapGridObstacles = [...obstacles];
+
+    const cpos = this.getRandomMapPosition_obstacleAware();
+    const cdir = this.getRandomDirection();
+    const fpos = cpos;
+
+    let MarsObj = {  // prepare the object for database
+      mapLength: this.mapLength,
+      mapGrid: map,
+      mapGridObstacles: obstacles,
+      currentPosition: cpos,
+      currentDirection: cdir,
+      futurePosition: fpos
+    }
+
+    console.log(MarsObj);
+
+    DatabaseController.set(MarsObj); // save value to database
+  }
 
   constructor(mapLength?, obstacleNumber?) {
-    this.initializeRoutes(); // init front-end routes
-    this.mapLength = mapLength ? mapLength : this.defaultMapLength; // set the map length
-    this.mapGrid = this.generateMap(); // generate the map based on map length
-    this.mapGridObstacles = obstacleNumber ? this.generateObstacles(obstacleNumber) : this.generateObstacles(this.defaultObstacleNumber); // generate some random obstacles in the map
-    this.initRoverPosition(); // generate a random rover position and direction (N,E,S,W)
+    this.initializeRoutes(); // init frontend routes
   }
 
   initializeRoutes() {
@@ -79,40 +135,39 @@ export default class RoverController {
 
   // simply return some map info
   getMapInfo = async (req: Request, res: Response, next: NextFunction) => {
-    return res.status(200).json({
-      mapLength: this.mapLength,
-      mapGrid: this.mapGrid,
-      mapGridObstacles: this.mapGridObstacles,
-      roverPosition: this.currentPosition,
-      roverDirection: this.currentDirection,
-    });
+    let data = DatabaseController.getAll();
+    return res.status(200).json(data);
   };
 
   // return the rover positon and direction
   getRoverInfo = async (req: Request, res: Response, next: NextFunction) => {
-    return res.status(200).render("roverInfo", {
-      position: this.currentPosition,
-      direction: this.currentDirection,
+    let dbData:any = DatabaseController.getAll();
 
-      mapLength: this.mapLength,
-      mapGrid: this.mapGrid,
-      mapGridObstacles: this.mapGridObstacles,
-      roverPosition: this.currentPosition,
-      roverDirection: this.currentDirection,
+    return res.status(200).render("roverInfo", {
+      position: dbData.currentPosition,
+      direction: dbData.currentDirection,
+
+      mapLength: dbData.mapLength,
+      mapGrid: dbData.mapGrid,
+      mapGridObstacles: dbData.mapGridObstacles,
+      roverPosition: dbData.currentPosition,
+      roverDirection: dbData.currentDirection,
     });
   };
 
   // return some info to build the roverMoveView in the front-end
   roverMoveView = async (req: Request, res: Response, next: NextFunction) => {
+    let dbData:any = DatabaseController.getAll();
+
     return res.status(200).render("roverMove", {
-      roverPosition: this.currentPosition,
-      roverDirection: this.currentDirection,
+      roverPosition: dbData.currentPosition,
+      roverDirection: dbData.currentDirection,
       obstaclePosition: false,
 
-      mapGrid: this.mapGrid,
-      mapGridObstacles: this.mapGridObstacles,
-      mapLength: this.mapLength,
-      message: `The rover position is: x:${this.currentPosition.x}, y:${this.currentPosition.y}, directed to ${this.currentDirection}. <br> Insert commands above to move the rover.`
+      mapGrid: dbData.mapGrid,
+      mapGridObstacles: dbData.mapGridObstacles,
+      mapLength: dbData.mapLength,
+      message: `The rover position is: x:${dbData.currentPosition.x}, y:${dbData.currentPosition.y}, directed to ${dbData.currentDirection}. <br> Insert commands above to move the rover.`
     });
   };
 
@@ -139,25 +194,44 @@ export default class RoverController {
     let commands = req.body.commands;
     let responseFormat = (req.body.format == 'json') ? 'json' : false;
 
-    console.log(responseFormat);
-    
-    // check if command
+    // check if command exist and if correct
     if(commands && this.checkCommands(commands)) {
       commands = req.body.commands.split(',') as ("f" | "b" | "r" | "l")[];
+      this.dbData = DatabaseController.getAll(); // retrive all map&rover info from json db
 
+      // execute function for every command send to api
       for (let index = 0; index < commands.length; ++index) {
         this.setFuturePosition(commands[index], res);
         this.checkObstacles();
-        if (this.osbtacleFound) break;
-        else this.currentPosition = this.futurePosition;
-      }
-  
-      if (this.osbtacleFound) this.returnMoveObstacle(res, responseFormat);
-      else this.returnMoveSuccess(res, responseFormat);
 
+        if (this.osbtacleFound) {
+          break; // path not free. Exit from for loop to block other commands.
+        } else {
+            this.roverMove_exec(); // Path is free: so update db and move rover.
+        }
+      }
+
+        this.returnMoveMessage(res, responseFormat); // after exec commands we return a message (or error message)
     } else {
       this.returnRoverCommandError(commands, res);
     }
+  }
+
+  // edit the current position on db
+  private roverMove_exec() {
+    this.dbData.currentPosition = {...this.dbData.futurePosition};
+
+    DatabaseController.set({
+      currentPosition: this.dbData.currentPosition
+    });
+  }
+
+  // return movement failture or success
+  private returnMoveMessage(res: Response, responseFormat) {
+      if (this.osbtacleFound) 
+          this.returnMoveObstacle(res, responseFormat);
+      else 
+        this.returnMoveSuccess(res, responseFormat);
   }
 
   returnRoverCommandError(command, res: Response) {
@@ -179,23 +253,23 @@ export default class RoverController {
   returnMoveObstacle(res, responseFormat: string|boolean) {
     if(responseFormat == 'json') {
       return res.status(200).json({
-        message: `Obstacle found at position x:${this.futurePosition.x}, y:${this.futurePosition.y}`,
-        roverPosition: this.currentPosition,
-        roverDirection: this.currentDirection,
+        message: `Obstacle found at position x:${this.dbData.futurePosition.x}, y:${this.dbData.futurePosition.y}`,
+        roverPosition: this.dbData.currentPosition,
+        roverDirection: this.dbData.currentDirection,
   
-        mapGrid: this.mapGrid,
-        mapGridObstacles: this.mapGridObstacles,
-        mapLength: this.mapLength,
+        mapGrid: this.dbData.mapGrid,
+        mapGridObstacles: this.dbData.mapGridObstacles,
+        mapLength: this.dbData.mapLength,
       });
     } else {
       return res.status(200).render("roverMove", {
-        message: `Obstacle found at position x:${this.futurePosition.x}, y:${this.futurePosition.y}`,
-        roverPosition: this.currentPosition,
-        roverDirection: this.currentDirection,
+        message: `Obstacle found at position x:${this.dbData.futurePosition.x}, y:${this.dbData.futurePosition.y}`,
+        roverPosition: this.dbData.currentPosition,
+        roverDirection: this.dbData.currentDirection,
   
-        mapGrid: this.mapGrid,
-        mapGridObstacles: this.mapGridObstacles,
-        mapLength: this.mapLength,
+        mapGrid: this.dbData.mapGrid,
+        mapGridObstacles: this.dbData.mapGridObstacles,
+        mapLength: this.dbData.mapLength,
       });
     }
   }
@@ -205,24 +279,24 @@ export default class RoverController {
     if(responseFormat == 'json') {
       return res.status(200).json({
         message: "Rover moved. No ostacle found in the commands path.",
-        roverPosition: this.currentPosition,
-        roverDirection: this.currentDirection,
+        roverPosition: this.dbData.currentPosition,
+        roverDirection: this.dbData.currentDirection,
         obstaclePosition: false,
   
-        mapGrid: this.mapGrid,
-        mapGridObstacles: this.mapGridObstacles,
-        mapLength: this.mapLength,
+        mapGrid: this.dbData.mapGrid,
+        mapGridObstacles: this.dbData.mapGridObstacles,
+        mapLength: this.dbData.mapLength,
       });
     } else {
       return res.status(200).render("roverMove", {
         message: "Rover moved. No ostacle found in the commands path.",
-        roverPosition: this.currentPosition,
-        roverDirection: this.currentDirection,
+        roverPosition: this.dbData.currentPosition,
+        roverDirection: this.dbData.currentDirection,
         obstaclePosition: false,
   
-        mapGrid: this.mapGrid,
-        mapGridObstacles: this.mapGridObstacles,
-        mapLength: this.mapLength,
+        mapGrid: this.dbData.mapGrid,
+        mapGridObstacles: this.dbData.mapGridObstacles,
+        mapLength: this.dbData.mapLength,
       });
     }
   }
@@ -231,10 +305,11 @@ export default class RoverController {
   // if the futurePosition of the rover is an obstacle.
   checkObstacles(): boolean {
     let collision = (obstacle: Point) =>
-      obstacle.x === this.futurePosition.x &&
-      obstacle.y === this.futurePosition.y;
-    if (this.mapGridObstacles.some(collision)) {
+      obstacle.x === this.dbData.futurePosition.x &&
+      obstacle.y === this.dbData.futurePosition.y;
+    if (this.dbData.mapGridObstacles.some(collision)) {
       this.osbtacleFound = true;
+      console.log('FUNDDDD')
       return true;
     } else {
       this.osbtacleFound = false;
@@ -242,8 +317,8 @@ export default class RoverController {
     }
   }
 
-  setFuturePosition(command: string, res: Response) {
-    this.futurePosition = { ...this.currentPosition }; 
+  setFuturePosition(command: string, res: Response) {   
+    this.dbData.futurePosition = {...this.dbData.currentPosition}
 
     // call the corret move function depending on current command
     switch (command) {
@@ -271,21 +346,21 @@ export default class RoverController {
 
   // 4 set of functions to move the rover on the map (directions aware)
   moveForward() {
-    switch (this.currentDirection) {
+    switch (this.dbData.currentDirection) {
       case "N":
-        this.futurePosition.y++;
+        this.dbData.futurePosition.y++;
         this.lastCoordChanged = "y";
         break;
       case "E":
-        this.futurePosition.x++;
+        this.dbData.futurePosition.x++;
         this.lastCoordChanged = "x";
         break;
       case "S":
-        this.futurePosition.y--;
+        this.dbData.futurePosition.y--;
         this.lastCoordChanged = "y";
         break;
       case "W":
-        this.futurePosition.x--;
+        this.dbData.futurePosition.x--;
         this.lastCoordChanged = "x";
         break;
     }
@@ -293,21 +368,21 @@ export default class RoverController {
 
   // 4 set of functions to move the rover on the map (directions aware)
   moveBackward() {
-    switch (this.currentDirection) {
+    switch (this.dbData.currentDirection) {
       case "N":
-        this.futurePosition.y--;
+        this.dbData.futurePosition.y--;
         this.lastCoordChanged = "y";
         break;
       case "E":
-        this.futurePosition.x--;
+        this.dbData.futurePosition.x--;
         this.lastCoordChanged = "x";
         break;
       case "S":
-        this.futurePosition.y++;
+        this.dbData.futurePosition.y++;
         this.lastCoordChanged = "y";
         break;
       case "W":
-        this.futurePosition.x++;
+        this.dbData.futurePosition.x++;
         this.lastCoordChanged = "x";
         break;
     }
@@ -315,21 +390,21 @@ export default class RoverController {
 
   // 4 set of functions to move the rover on the map (directions aware)
   moveRight() {
-    switch (this.currentDirection) {
+    switch (this.dbData.currentDirection) {
       case "N":
-        this.futurePosition.x++;
+        this.dbData.futurePosition.x++;
         this.lastCoordChanged = "x";
         break;
       case "E":
-        this.futurePosition.y--;
+        this.dbData.futurePosition.y--;
         this.lastCoordChanged = "y";
         break;
       case "S":
-        this.futurePosition.x--;
+        this.dbData.futurePosition.x--;
         this.lastCoordChanged = "x";
         break;
       case "W":
-        this.futurePosition.y++;
+        this.dbData.futurePosition.y++;
         this.lastCoordChanged = "y";
         break;
     }
@@ -337,21 +412,21 @@ export default class RoverController {
 
   // 4 set of functions to move the rover on the map (directions aware)
   moveLeft() {
-    switch (this.currentDirection) {
+    switch (this.dbData.currentDirection) {
       case "N":
-        this.futurePosition.x--;
+        this.dbData.futurePosition.x--;
         this.lastCoordChanged = "x";
         break;
       case "E":
-        this.futurePosition.y++;
+        this.dbData.futurePosition.y++;
         this.lastCoordChanged = "y";
         break;
       case "S":
-        this.futurePosition.x++;
+        this.dbData.futurePosition.x++;
         this.lastCoordChanged = "x";
         break;
       case "W":
-        this.futurePosition.y--;
+        this.dbData.futurePosition.y--;
         this.lastCoordChanged = "y";
         break;
     }
@@ -368,8 +443,8 @@ export default class RoverController {
   // lastCoordChanged is the coordinate (x or y) that is just changed by the move function
   coordIsOutOfMap(): boolean {
     if (
-      this.futurePosition[this.lastCoordChanged] < 0 ||
-      this.futurePosition[this.lastCoordChanged] > this.mapLength
+      this.dbData.futurePosition[this.lastCoordChanged] < 0 ||
+      this.dbData.futurePosition[this.lastCoordChanged] > this.dbData.mapLength
     )
       return true; // the current coord is outside the map, so return true to make a position wrapping
     else
@@ -379,12 +454,12 @@ export default class RoverController {
 
   // function that execute the rover position wrapping when the rover go outside of the map
   executePositionWrapping(): void {
-    if (this.futurePosition[this.lastCoordChanged] < 0) {
+    if (this.dbData.futurePosition[this.lastCoordChanged] < 0) {
       // if the rover coord position is out map and is < 0 we move the rover to the opposite (x|y = mapLength)
-      this.futurePosition[this.lastCoordChanged] = this.mapLength;
-    } else if (this.futurePosition[this.lastCoordChanged] > this.mapLength) {
+      this.dbData.futurePosition[this.lastCoordChanged] = this.dbData.mapLength;
+    } else if (this.dbData.futurePosition[this.lastCoordChanged] > this.dbData.mapLength) {
       // if the rover coord position is out map and is > of this.mapLength we move the rover to the opposite (x|y = 0)
-      this.futurePosition[this.lastCoordChanged] = 0;
+      this.dbData.futurePosition[this.lastCoordChanged] = 0;
     }
   }
 
@@ -406,6 +481,7 @@ export default class RoverController {
 
   // return a random map position like {y:1, x:2}
   getRandomMapPosition(): Point {
+    console.log(this.mapGrid);
     let randomIndex = this.getRandomNumber(this.mapGrid.length - 1); // get a random index
     return { ...this.mapGrid[randomIndex] } as Point; // return the random map position with no reference
   }
