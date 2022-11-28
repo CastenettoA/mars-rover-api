@@ -45,9 +45,9 @@ app.get("/", (req, res) => {
     roverPosition: dbData.currentPosition,
     roverDirection: dbData.currentDirection,
     obstaclePosition: false,
-    mapGrid: rover.dbData,
-    mapGridObstacles: rover.dbData,
-    mapLength: rover.dbData,
+    mapGrid: dbData.mapGrid,
+    mapGridObstacles: dbData.mapGridObstacles,
+    mapLength: dbData.mapLength,
   });
 });
 

@@ -243,7 +243,6 @@ export default class RoverController {
       obstacle.y === this.dbData.futurePosition.y;
     if (this.dbData.mapGridObstacles.some(collision)) {
       this.osbtacleFound = true;
-      console.log('FUNDDDD')
       return true;
     } else {
       this.osbtacleFound = false;
