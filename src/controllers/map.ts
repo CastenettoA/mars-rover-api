@@ -1,7 +1,7 @@
 import { Point, cartesianXyGrid, Directions, xyCoords } from "../interfaces/cartesian";
 import { DatabaseController } from './database';
 
-export class MapController { 
+export default class MapController { 
     defaultMapLength = 6;
     defaultObstacleNumber = 10;
 
