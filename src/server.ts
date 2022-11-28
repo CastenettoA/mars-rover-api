@@ -4,6 +4,7 @@ import express, { Express } from "express";
 import morgan from "morgan";
 import cors from 'cors';
 import RoverController from "./controllers/rover";
+import { DatabaseController } from "./controllers/database";
 
 var fs = require("fs");
 var path = require("path");
@@ -37,14 +38,16 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
+  const dbData = DatabaseController.getAll(); // retrive all map&rover info from json db
+
   res.status(200).render("index", {
     routesList: rover.getRoutesList(),
-    roverPosition: rover.currentPosition,
-    roverDirection: rover.currentDirection,
+    roverPosition: dbData.currentPosition,
+    roverDirection: dbData.currentDirection,
     obstaclePosition: false,
-    mapGrid: rover.mapGrid,
-    mapGridObstacles: rover.mapGridObstacles,
-    mapLength: rover.mapLength,
+    mapGrid: rover.dbData,
+    mapGridObstacles: rover.dbData,
+    mapLength: rover.dbData,
   });
 });
 
