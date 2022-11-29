@@ -1,7 +1,7 @@
 <h3>Mars Map Planimetry</h3>
 <div class="mapContainer">
     <% let l = 0; %>
-    <% mapGrid.forEach((quadrant, index) => { %>
+    <% dbData.mapGrid.forEach((quadrant, index) => { %>
         <% if(l===0){ %> 
             <div class="mapColumn">
         <% } %>
@@ -10,15 +10,15 @@
                     // Obstacle check. If so add css class.
                     let isThereObstacle = false;
                     let collision = (obstacle) => obstacle.x === quadrant.x && obstacle.y === quadrant.y;
-                    if( mapGridObstacles.some(collision) ) isThereObstacle = true; else isThereObstacle = false;
+                    if( dbData.mapGridObstacles.some(collision) ) isThereObstacle = true; else isThereObstacle = false;
                 
                    // Rover position check. If so add css class.
                    let isThereRover = false;
-                   if(quadrant.x === roverPosition.x && quadrant.y === roverPosition.y) isThereRover = true; else isThereRover = false;
+                   if(quadrant.x === dbData.currentPosition.x && quadrant.y === dbData.currentPosition.y) isThereRover = true; else isThereRover = false;
                     
                 %>
                 
-                <div class="mapPoint <% if(isThereObstacle){ %>obstacle<% } %> <% if(isThereRover){ %>rover <%=roverDirection%><% } %>"
+                <div class="mapPoint <% if(isThereObstacle){ %>obstacle<% } %> <% if(isThereRover){ %>rover <%=dbData.currentDirection%><% } %>"
                     <% if(l===0){ %> style="border-bottom: 1px solid #ccc;" <%}%>
                     
                 >
@@ -26,11 +26,11 @@
                     <span>x:<b><%= quadrant.x%></b>, y:<b><%= quadrant.y%></b></span>
                 </div>
 
-        <% if(l===mapLength){ %> 
+        <% if(l===dbData.mapLength){ %> 
         </div> <% } %>
 
         <% l++; %>
-        <% if(l===mapLength+1){ l=0; } %>
+        <% if(l===dbData.mapLength+1){ l=0; } %>
     <% }) %>
 </div>
 

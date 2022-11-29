@@ -69,40 +69,26 @@ export default class RoverController {
 
   // simply return some map info
   getMapInfo = async (req: Request, res: Response, next: NextFunction) => {
-    let data = DatabaseController.getAll();
-    return res.status(200).json(data);
+    return res.status(200).json(DatabaseController.getAll());
   };
 
   // return the rover positon and direction
   getRoverInfo = async (req: Request, res: Response, next: NextFunction) => {
-    let dbData:any = DatabaseController.getAll();
-
-    return res.status(200).render("roverInfo", {
-      position: dbData.currentPosition,
-      direction: dbData.currentDirection,
-
-      mapLength: dbData.mapLength,
-      mapGrid: dbData.mapGrid,
-      mapGridObstacles: dbData.mapGridObstacles,
-      roverPosition: dbData.currentPosition,
-      roverDirection: dbData.currentDirection,
+    res.status(200).render("roverInfo", {
+      obstaclePosition: false,
+      dbData: DatabaseController.getAll() // retrive all map&rover info from json db
     });
   };
 
   // return some info to build the roverMoveView in the front-end
   roverMoveView = async (req: Request, res: Response, next: NextFunction) => {
-    let dbData:any = DatabaseController.getAll();
+    let dbData:any = DatabaseController.getAll(); // retrive all map&rover info from json db
 
-    return res.status(200).render("roverMove", {
-      roverPosition: dbData.currentPosition,
-      roverDirection: dbData.currentDirection,
+    res.status(200).render("roverMove", {
       obstaclePosition: false,
-
-      mapGrid: dbData.mapGrid,
-      mapGridObstacles: dbData.mapGridObstacles,
-      mapLength: dbData.mapLength,
+      dbData,
       message: `The rover position is: x:${dbData.currentPosition.x}, y:${dbData.currentPosition.y}, directed to ${dbData.currentDirection}. <br> Insert commands above to move the rover.`
-    });
+    });    
   };
 
   // check if commands are formatted correctly, is so return true. if not return false to make an error
@@ -185,6 +171,8 @@ export default class RoverController {
 
   // return a errore message with the obstacle position.
   returnMoveObstacle(res, responseFormat: string|boolean) {
+    const dbData = DatabaseController.getAll(); // retrive all map&rover info from json db
+
     if(responseFormat == 'json') {
       return res.status(200).json({
         message: `Obstacle found at position x:${this.dbData.futurePosition.x}, y:${this.dbData.futurePosition.y}`,
@@ -196,20 +184,19 @@ export default class RoverController {
         mapLength: this.dbData.mapLength,
       });
     } else {
-      return res.status(200).render("roverMove", {
+      res.status(200).render("roverMove", {
+        obstaclePosition: false,
+        dbData,
         message: `Obstacle found at position x:${this.dbData.futurePosition.x}, y:${this.dbData.futurePosition.y}`,
-        roverPosition: this.dbData.currentPosition,
-        roverDirection: this.dbData.currentDirection,
-  
-        mapGrid: this.dbData.mapGrid,
-        mapGridObstacles: this.dbData.mapGridObstacles,
-        mapLength: this.dbData.mapLength,
-      });
+
+      }); 
     }
   }
 
   // return a succes message. The move was moved with no obstacle in the path
   returnMoveSuccess(res, responseFormat:string|boolean) {
+    const dbData = DatabaseController.getAll(); // retrive all map&rover info from json db
+
     if(responseFormat == 'json') {
       return res.status(200).json({
         message: "Rover moved. No ostacle found in the commands path.",
@@ -222,16 +209,11 @@ export default class RoverController {
         mapLength: this.dbData.mapLength,
       });
     } else {
-      return res.status(200).render("roverMove", {
-        message: "Rover moved. No ostacle found in the commands path.",
-        roverPosition: this.dbData.currentPosition,
-        roverDirection: this.dbData.currentDirection,
+      res.status(200).render("roverMove", {
         obstaclePosition: false,
-  
-        mapGrid: this.dbData.mapGrid,
-        mapGridObstacles: this.dbData.mapGridObstacles,
-        mapLength: this.dbData.mapLength,
-      });
+        dbData,
+        message: "Rover moved. No ostacle found in the commands path.",
+      }); 
     }
   }
 

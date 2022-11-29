@@ -38,16 +38,10 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  const dbData = DatabaseController.getAll(); // retrive all map&rover info from json db
-
   res.status(200).render("index", {
-    routesList: rover.getRoutesList(),
-    roverPosition: dbData.currentPosition,
-    roverDirection: dbData.currentDirection,
+    routesList: rover.getRoutesList(), // array of available api routes
     obstaclePosition: false,
-    mapGrid: dbData.mapGrid,
-    mapGridObstacles: dbData.mapGridObstacles,
-    mapLength: dbData.mapLength,
+    dbData: DatabaseController.getAll() // retrive all map&rover info from json db
   });
 });
 

@@ -1,4 +1,5 @@
-import * as fs from 'fs';
+import * as fs from 'fs'; 
+import * as path from 'path'
 
 /** Simple utility to get and set fields in a JSON file. 
  * Useful to be like a database for the rover and the map state.
@@ -7,11 +8,11 @@ import * as fs from 'fs';
 export class DatabaseController {
     /* the database have only one JSON file (JSON format is for
     easily change the content with JavaScript.) As there is only one file the file path is write below */
-    static databaseFilePath = '/db.json';
+    static databaseFilePath = path.normalize(__dirname+'/..'+'/database/db.json');
 
     static writeFile(newContent) {
       try {
-        fs.writeFileSync(__dirname + this.databaseFilePath, newContent);
+        fs.writeFileSync(this.databaseFilePath, newContent);
         return true;
       } catch (err) {
         console.log(err);
@@ -20,7 +21,7 @@ export class DatabaseController {
     }
 
     static getDbParsed() {
-      let data = fs.readFileSync(__dirname + '/db.json', 'utf8'); // read data
+      let data = fs.readFileSync(this.databaseFilePath, 'utf8'); // read data
       return JSON.parse(data); // convert JSON to Object
     }
 
