@@ -3,6 +3,7 @@ import http from "http";
 import express, { Express } from "express";
 import morgan from "morgan";
 import cors from 'cors';
+require('dotenv').config() // todo: avoid this and configure heroku local vars
 import RoverController from "./controllers/rover";
 import { DatabaseController } from "./controllers/database";
 

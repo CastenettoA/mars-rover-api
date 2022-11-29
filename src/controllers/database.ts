@@ -8,7 +8,7 @@ import * as path from 'path'
 export class DatabaseController {
     /* the database have only one JSON file (JSON format is for
     easily change the content with JavaScript.) As there is only one file the file path is write below */
-    static databaseFilePath = path.normalize(__dirname+'/..'+'/database/db.json');
+    static databaseFilePath = path.normalize(__dirname+'/..'+'/database/' + process.env.DATABASE_FILE_NAME);
 
     static writeFile(newContent) {
       try {
@@ -21,6 +21,7 @@ export class DatabaseController {
     }
 
     static getDbParsed() {
+      console.log(this.databaseFilePath);
       let data = fs.readFileSync(this.databaseFilePath, 'utf8'); // read data
       return JSON.parse(data); // convert JSON to Object
     }
