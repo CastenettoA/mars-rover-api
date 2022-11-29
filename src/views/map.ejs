@@ -1,0 +1,153 @@
+<h3>Mars Map Planimetry</h3>
+<div class="mapContainer">
+    <% let l = 0; %>
+    <% dbData.mapGrid.forEach((quadrant, index) => { %>
+        <% if(l===0){ %> 
+            <div class="mapColumn">
+        <% } %>
+
+                <% 
+                    // Obstacle check. If so add css class.
+                    let isThereObstacle = false;
+                    let collision = (obstacle) => obstacle.x === quadrant.x && obstacle.y === quadrant.y;
+                    if( dbData.mapGridObstacles.some(collision) ) isThereObstacle = true; else isThereObstacle = false;
+                
+                   // Rover position check. If so add css class.
+                   let isThereRover = false;
+                   if(quadrant.x === dbData.currentPosition.x && quadrant.y === dbData.currentPosition.y) isThereRover = true; else isThereRover = false;
+                    
+                %>
+                
+                <div class="mapPoint <% if(isThereObstacle){ %>obstacle<% } %> <% if(isThereRover){ %>rover <%=dbData.currentDirection%><% } %>"
+                    <% if(l===0){ %> style="border-bottom: 1px solid #ccc;" <%}%>
+                    
+                >
+                    <!-- L value is: <%= l %>  -->
+                    <span>x:<b><%= quadrant.x%></b>, y:<b><%= quadrant.y%></b></span>
+                </div>
+
+        <% if(l===dbData.mapLength){ %> 
+        </div> <% } %>
+
+        <% l++; %>
+        <% if(l===dbData.mapLength+1){ l=0; } %>
+    <% }) %>
+</div>
+
+<div class="mapLegend">
+    <p style="font-weight: bold; margin:0; padding: 0;">Map Legend</p>
+    <div class="obs">
+        <span class="square"></span>
+        <span>Obstacle Position</span>
+    </div>
+    
+    <div class="rov">
+        <span class="square"></span>
+        <span>Rover Position</span>
+    </div>
+
+    <div class="rovDir">
+        <span class="square"></span>
+        <span>Rover Direction (North)</span>
+    </div>
+
+    <div class="quadrant">
+        <span class="square"></span>
+        <span>A simple map void quadrant</span>
+    </div>
+</div>
+
+<style>
+    .mapLegend {
+        margin-top: 2.4rem;
+    }
+    
+    .mapLegend > div {
+        display: flex;
+        align-items: center;
+    }
+
+    .mapLegend .square {
+        display: block;
+        width: 10px;
+        height: 10px;
+        margin-right: .5em;
+    }
+
+    .mapLegend .quadrant .square {
+        border: 1px solid #777;
+        background-color: #fafafa;
+    }
+
+    .mapLegend .obs .square {
+        background-color: rgba(254, 197, 41, 0.4);
+    }
+
+    .mapLegend .rov .square {
+        background-color: rgba(19, 143, 220, 0.4);
+    }
+
+    .mapLegend .rovDir .square {
+        background-color: rgba(19, 143, 220, 0.4);
+        border-top: 4px solid rgba(19, 143, 220, 0.8);
+    }
+
+    .mapContainer {
+        display: flex;
+        flex-direction: column-reverse;
+
+    }
+    .mapColumn {
+        display: flex;
+    }
+
+    .mapPoint {
+        position: relative;
+        width: 60px;
+        height: 60px;
+        padding: 1em .4em;
+        border: 1px solid #ccc;
+        border-bottom: none;
+        color: #888;
+        font-size: .7em;
+    }
+
+    .mapPoint span {
+        display: inline-block;
+        position: absolute;
+        bottom: 1px; left: 5px;
+    }
+
+    .mapPoint b {
+        color: #888;
+        font-weight: 400;
+    }
+
+    .mapPoint:hover, .mapPoint:hover b  {
+        color: #333;
+        font-weight: bold;
+    }
+
+    /* .mapPoint:nth-child(even) {
+        background-color: #f2f2f2;
+    } */
+
+    .mapPoint.obstacle {
+        background-color: rgba(254, 197, 41, 0.4);
+    }
+
+    .mapPoint.rover {
+        background-color: rgba(19, 143, 220, 0.4);
+    }
+
+    .mapPoint.N { border-top: 7px solid rgba(19, 143, 220, 0.6) !important; }
+    .mapPoint.E { border-right: 7px solid rgba(19, 143, 220, 0.6) !important; }
+    .mapPoint.S { border-bottom: 7px solid rgba(19, 143, 220, 0.6) !important; }
+    .mapPoint.W { border-left: 7px solid rgba(19, 143, 220, 0.6) !important; }
+
+    .message {
+        padding: .6em 1em;
+        background-color: beige;
+        border-radius: .3em;
+    }
+</style>

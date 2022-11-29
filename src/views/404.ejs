@@ -1,0 +1,9 @@
+<%- include('header.ejs') %>
+<h1><a href="/">MarsRover</a> / 404 not found 🦸‍♂️</h1>
+<p>That's the API list you can use:</p>
+
+<ul>
+  <% routesList.forEach((route)=>{ %>
+    <li><a href="/<%= route %>"><%= route %></a></li>
+  <% }); %>
+</ul>
