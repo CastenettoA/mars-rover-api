@@ -21,7 +21,6 @@ export class DatabaseController {
     }
 
     static getDbParsed() {
-      console.log(this.databaseFilePath);
       let data = fs.readFileSync(this.databaseFilePath, 'utf8'); // read data
       return JSON.parse(data); // convert JSON to Object
     }

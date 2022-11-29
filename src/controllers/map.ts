@@ -39,9 +39,7 @@ export default class MapController {
           currentDirection: cdir,
           futurePosition: fpos
         }
-    
-        console.log(MarsObj);
-    
+        
         DatabaseController.set(MarsObj); // save value to database
     }
 
@@ -63,7 +61,6 @@ export default class MapController {
 
   // return a random map position like {y:1, x:2}
   getRandomMapPosition(): Point {
-    console.log(this.mapGrid);
     let randomIndex = this.getRandomNumber(this.mapGrid.length - 1); // get a random index
     return { ...this.mapGrid[randomIndex] } as Point; // return the random map position with no reference
   }

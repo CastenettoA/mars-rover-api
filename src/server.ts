@@ -6,12 +6,25 @@ import cors from 'cors';
 require('dotenv').config() // todo: avoid this and configure heroku local vars
 import RoverController from "./controllers/rover";
 import { DatabaseController } from "./controllers/database";
-
 var fs = require("fs");
 var path = require("path");
 
 const app: Express = express();
-const rover = new RoverController();
+
+/** Server */
+const httpServer = http.createServer(app);
+const PORT: any = process.env.PORT ?? 6060;
+httpServer.listen(PORT, () => {
+  console.log(`The server is running on port ${PORT}`);
+  console.log("http://localhost:" + PORT);
+});
+
+/** Socket logic */
+const { Server } = require("socket.io");
+const io = new Server(httpServer); // init a new istance of socket.io passing the http server
+
+const rover = new RoverController(io); // init routes, main app logic.
+
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));
@@ -58,12 +71,4 @@ app.use((req, res, next) => {
   // });
 
   res.status(404).render("404", { routesList: rover.getRoutesList() });
-});
-
-/** Server */
-const httpServer = http.createServer(app);
-const PORT: any = process.env.PORT ?? 6060;
-httpServer.listen(PORT, () => {
-  console.log(`The server is running on port ${PORT}`);
-  console.log("http://localhost:" + PORT);
 });

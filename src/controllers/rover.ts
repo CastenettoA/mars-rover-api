@@ -14,14 +14,15 @@ import { DatabaseController } from './database';
 
 export default class RoverController {
   router = express.Router();
-
+  io:any; // referece to socket.io server instance (used to fire map event to client)
 
   lastCoordChanged: xyCoords; // used for position wrapping
   osbtacleFound = false;
 
   dbData: any; // obj retrived from json db file (contain all map and rover info)
 
-  constructor(mapLength?, obstacleNumber?) {
+  constructor(io) {
+    this.io = io;
     this.initializeRoutes(); // init frontend routes
   }
 
@@ -109,7 +110,7 @@ export default class RoverController {
     return (valid) ? true : false;
   }
 
-  // function responsable to move the rover, check obstacles, report success/error
+  // function that move the rover, check obstacles, report success/error
   roverMove = async (req: Request, res: Response, next: NextFunction) => {
     let commands = req.body.commands;
     let responseFormat = (req.body.format == 'json') ? 'json' : false;
@@ -128,7 +129,8 @@ export default class RoverController {
           break; // path not free. Exit from for loop to block other commands.
         } else {
             this.roverMove_exec(); // Path is free: so update db and move rover.
-        }
+            this.io.emit('update-map');
+          }
       }
 
         this.returnMoveMessage(res, responseFormat); // after exec commands we return a message (or error message)
