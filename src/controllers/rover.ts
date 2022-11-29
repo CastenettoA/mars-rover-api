@@ -21,7 +21,7 @@ export default class RoverController {
 
   dbData: any; // obj retrived from json db file (contain all map and rover info)
 
-  constructor(io) {
+  constructor(io?) {
     this.io = io;
     this.initializeRoutes(); // init frontend routes
   }
