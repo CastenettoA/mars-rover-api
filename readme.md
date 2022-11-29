@@ -5,12 +5,10 @@ Live link: https://stormy-meadow-92152.herokuapp.com/
 This is an API that translates the commands sent from earth to instructions that are understood by the rover.*
 
 ### Tech Stack
-* Node.js + Express (backend server, API, rover class)
-* TypeScript
-* EJS as templating language engine (for the /views)
-* Chota.css as CSS-ready theme for the front-end
-* XV as Test Runner
-* A simple db.json file that is used like a database with the help of DatabaseController class.
+* Node.js + Express (backend server, API, rover class), TypeScript.
+* EJS as templating language engine (for the /views).
+* A simple db.json file that is used like a database with the help of DatabaseController class. db_local.json for local env. db_prod.json for the prod environment.
+* XV as Test Runner & Chota.css as a cool css theme reset.
 
 ### Install
 ```sh
@@ -25,7 +23,7 @@ This is an API that translates the commands sent from earth to instructions that
 ```
 
 ### Usage
-Start the local server with **npm run dev** and see the home page on https://localhost:6060 to get started!
+Start the local server with **npm run dev** (or heroku local) and see the home page on https://localhost:6060 to get started!
 
 These are the available routes:
 * **/roverInfo** *(get) return some simple rover info*
@@ -52,3 +50,5 @@ Some useful heroku command:
 * heroku ps:restart
 * heroku open
 * heroku logs --tail
+* heroku config #to see config vars
+* heroku config:set/get...
