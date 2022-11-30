@@ -15,7 +15,7 @@ export class DatabaseController {
         fs.writeFileSync(this.databaseFilePath, newContent);
         return true;
       } catch (err) {
-        console.log(err);
+        console.log('error writing file on database; err val:', err);
         return false;
       }
     }

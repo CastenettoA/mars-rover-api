@@ -129,8 +129,6 @@ export default class RoverController {
           break; // path not free. Exit from for loop to block other commands.
         } else {
             this.roverMove_exec(); // Path is free: so update db and move rover.
-            console.log(this.dbData.roverPosition)
-            this.io.emit('update-map', this.dbData.currentPosition);
           }
       }
 
@@ -151,6 +149,9 @@ export default class RoverController {
 
   // return movement failture or success
   private returnMoveMessage(res: Response, responseFormat) {
+    console.log('update-map socket event');
+    this.io.emit('update-map', this.dbData.currentPosition); // sending socket to update map on clients
+
       if (this.osbtacleFound) 
           this.returnMoveObstacle(res, responseFormat);
       else 
