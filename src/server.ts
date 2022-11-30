@@ -2,8 +2,8 @@
 import http from "http";
 import express, { Express } from "express";
 import morgan from "morgan";
-import cors from 'cors';
-require('dotenv').config() // todo: avoid this and configure heroku local vars
+import cors from "cors";
+require("dotenv").config(); // todo: avoid this and configure heroku local vars
 import RoverController from "./controllers/rover";
 import { DatabaseController } from "./controllers/database";
 var fs = require("fs");
@@ -23,12 +23,11 @@ httpServer.listen(PORT, () => {
 import { Server, Socket } from "socket.io";
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:8080", "https://mars-rover-vue-v2.netlify.app"]
-  }
+    origin: ["http://localhost:8080", "https://mars-rover-vue-v2.netlify.app"],
+  },
 }); // init a new istance of socket.io passing the http server
 
 const rover = new RoverController(io); // init routes, main app logic.
-
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));
@@ -45,8 +44,11 @@ app.use(cors());
 
 /** RULES OF OUR API */
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");   // set the CORS policy
-  res.header("Access-Control-Allow-Headers","origin, X-Requested-With,Content-Type,Accept, Authorization"); // set the CORS headers
+  res.header("Access-Control-Allow-Origin", "*"); // set the CORS policy
+  res.header(
+    "Access-Control-Allow-Headers",
+    "origin, X-Requested-With,Content-Type,Accept, Authorization"
+  ); // set the CORS headers
   // set the CORS method headers
   if (req.method === "OPTIONS") {
     res.header("Access-Control-Allow-Methods", "GET PATCH DELETE POST");
@@ -59,7 +61,7 @@ app.get("/", (req, res) => {
   res.status(200).render("index", {
     routesList: rover.getRoutesList(), // array of available api routes
     obstaclePosition: false,
-    dbData: DatabaseController.getAll() // retrive all map&rover info from json db
+    dbData: DatabaseController.getAll(), // retrive all map&rover info from json db
   });
 });
 

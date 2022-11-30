@@ -6,7 +6,8 @@
   "scripts": {
     "test": "tsc && xv build",
     "dev": "nodemon src/server.ts",
-    "build": "rm -rf build/ && prettier --write src/ && tsc",
+    "prod": "node build/server.js",
+    "build": "rm -rf build/ && prettier --write src/ && tsc && cp -r src/views build/ && cp -r src/database build/",
     "deploy": "git push heroku master"
   },
   "nodemonConfig": {

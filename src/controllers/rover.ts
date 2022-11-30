@@ -1,20 +1,24 @@
 import { Request, Response, NextFunction } from "express";
 import express from "express";
-import { Point, cartesianXyGrid, Directions, xyCoords } from "../interfaces/cartesian";
-import { DatabaseController } from './database';
-
+import {
+  Point,
+  cartesianXyGrid,
+  Directions,
+  xyCoords,
+} from "../interfaces/cartesian";
+import { DatabaseController } from "./database";
 
 /**
  * The main class that controll the Rover on Mars Planet.
  * The main function is roverMove() function, and is used to move the rover on mars planet. It's accept [f,b,l,r] string commnand.
- * 
+ *
  * On the class start-up the costructor build the: MAP GRID, THE OBSTACLES AND THE INITIAL ROVER POSITION.
  * List of av ailable front-end routes: ["mapInfo", "roverInfo", "roverMove"]
  */
 
 export default class RoverController {
   router = express.Router();
-  io:any; // referece to socket.io server instance (used to fire map event to client)
+  io: any; // referece to socket.io server instance (used to fire map event to client)
 
   lastCoordChanged: xyCoords; // used for position wrapping
   osbtacleFound = false;
@@ -30,7 +34,7 @@ export default class RoverController {
   initializeRoutes() {
     // todo: in the next API redesign we need to follow a pattern, this is a little bit not organized,
     // but this program is very little, so this will not couse big problem
-    this.router.get("/roverInfo", this.getRoverInfo);    
+    this.router.get("/roverInfo", this.getRoverInfo);
     this.router.get("/roverMove", this.roverMoveView);
     this.router.post("/roverMove", this.roverMove);
 
@@ -44,27 +48,35 @@ export default class RoverController {
   }
 
   // get all the API endpoint
-  getRoutesList_detailedJson = async (req: Request, res: Response, next: NextFunction) => {
+  getRoutesList_detailedJson = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     return res.status(200).json([
       {
-        path: '/routeListJson',
-        type: 'get',
-        description: 'Return an array of objects of all avaiable API endpoint. [{path: string, type: string, description: string}]'
+        path: "/routeListJson",
+        type: "get",
+        description:
+          "Return an array of objects of all avaiable API endpoint. [{path: string, type: string, description: string}]",
       },
       {
-        path: '/mapInfo',
-        type: 'get',
-        description: 'Simply return map all map info (mapLength, mapGrid, mapGridObstacles)'
+        path: "/mapInfo",
+        type: "get",
+        description:
+          "Simply return map all map info (mapLength, mapGrid, mapGridObstacles)",
       },
       {
-        path: '/roverInfo',
-        type: 'get',
-        description: 'Simply return the rover position (currentPosition, currentDirection) and also all the map info.'
+        path: "/roverInfo",
+        type: "get",
+        description:
+          "Simply return the rover position (currentPosition, currentDirection) and also all the map info.",
       },
       {
-        path: '/roverMove',
-        type: 'post',
-        description: 'Accept an array of [f,b,r,l] letters and move the rover on the map. Return new rover position or an obstacle if found'
+        path: "/roverMove",
+        type: "post",
+        description:
+          "Accept an array of [f,b,r,l] letters and move the rover on the map. Return new rover position or an obstacle if found",
       },
     ]);
   };
@@ -78,47 +90,51 @@ export default class RoverController {
   getRoverInfo = async (req: Request, res: Response, next: NextFunction) => {
     res.status(200).render("roverInfo", {
       obstaclePosition: false,
-      dbData: DatabaseController.getAll() // retrive all map&rover info from json db
+      dbData: DatabaseController.getAll(), // retrive all map&rover info from json db
     });
   };
 
   // return some info to build the roverMoveView in the front-end
   roverMoveView = async (req: Request, res: Response, next: NextFunction) => {
-    let dbData:any = DatabaseController.getAll(); // retrive all map&rover info from json db
+    let dbData: any = DatabaseController.getAll(); // retrive all map&rover info from json db
 
     res.status(200).render("roverMove", {
       obstaclePosition: false,
       dbData,
-      message: `The rover position is: x:${dbData.currentPosition.x}, y:${dbData.currentPosition.y}, directed to ${dbData.currentDirection}. <br> Insert commands above to move the rover.`
-    });    
+      message: `The rover position is: x:${dbData.currentPosition.x}, y:${dbData.currentPosition.y}, directed to ${dbData.currentDirection}. <br> Insert commands above to move the rover.`,
+    });
   };
 
   // check if commands are formatted correctly, is so return true. if not return false to make an error
   checkCommands(commands) {
-    let c = commands.split(',');
+    let c = commands.split(",");
     let valid = true;
 
-    for(let i=0; i<c.length; i++) {
+    for (let i = 0; i < c.length; i++) {
       let el = c[i];
 
-      if(el && typeof el == 'string' && (el == 'f' || el == 'b' || el == 'r' || el == 'l')) {
+      if (
+        el &&
+        typeof el == "string" &&
+        (el == "f" || el == "b" || el == "r" || el == "l")
+      ) {
         // command is valid
       } else {
         valid = false;
       }
     }
 
-    return (valid) ? true : false;
+    return valid ? true : false;
   }
 
   // function that move the rover, check obstacles, report success/error
   roverMove = async (req: Request, res: Response, next: NextFunction) => {
     let commands = req.body.commands;
-    let responseFormat = (req.body.format == 'json') ? 'json' : false;
+    let responseFormat = req.body.format == "json" ? "json" : false;
 
     // check if command exist and if correct
-    if(commands && this.checkCommands(commands)) {
-      commands = req.body.commands.split(',') as ("f" | "b" | "r" | "l")[];
+    if (commands && this.checkCommands(commands)) {
+      commands = req.body.commands.split(",") as ("f" | "b" | "r" | "l")[];
       this.dbData = DatabaseController.getAll(); // retrive all map&rover info from json db
 
       // execute function for every command send to api
@@ -129,89 +145,89 @@ export default class RoverController {
         if (this.osbtacleFound) {
           break; // path not free. Exit from for loop to block other commands.
         } else {
-            this.roverMove_exec(); // Path is free: so update db and move rover.
-            this.countCommandRunned++;
-          }
+          this.roverMove_exec(); // Path is free: so update db and move rover.
+          this.countCommandRunned++;
+        }
       }
 
-        this.returnMoveMessage(res, responseFormat); // after exec commands we return a message (or error message)
+      this.returnMoveMessage(res, responseFormat); // after exec commands we return a message (or error message)
     } else {
       this.returnRoverCommandError(commands, res);
     }
-  }
+  };
 
   // edit the current position on db
   private roverMove_exec() {
-    this.dbData.currentPosition = {...this.dbData.futurePosition};
+    this.dbData.currentPosition = { ...this.dbData.futurePosition };
 
     DatabaseController.set({
-      currentPosition: this.dbData.currentPosition
+      currentPosition: this.dbData.currentPosition,
     });
   }
 
   // return movement failture or success
   private returnMoveMessage(res: Response, responseFormat) {
-    if(this.countCommandRunned > 0) { // launch socket only there is at least 1 edit to rover currentPosition
-      console.log('update-map socket event');
-      this.io.emit('update-map', this.dbData.currentPosition); // sending socket to update map on clients
+    if (this.countCommandRunned > 0) {
+      // launch socket only there is at least 1 edit to rover currentPosition
+      console.log("update-map socket event");
+      this.io.emit("update-map", this.dbData.currentPosition); // sending socket to update map on clients
       this.countCommandRunned = 0; // reset countCommandRunned
     }
 
-      if (this.osbtacleFound) 
-          this.returnMoveObstacle(res, responseFormat);
-      else 
-        this.returnMoveSuccess(res, responseFormat);
+    if (this.osbtacleFound) this.returnMoveObstacle(res, responseFormat);
+    else this.returnMoveSuccess(res, responseFormat);
   }
 
   returnRoverCommandError(command, res: Response) {
-    if(command) {
+    if (command) {
       return res.status(400).json({
         yourCommand: command,
-        message: 'Commands string is not valid. Command have to be a string divided by a commas like "f,f,b,r"'
+        message:
+          'Commands string is not valid. Command have to be a string divided by a commas like "f,f,b,r"',
       });
     } else {
       return res.status(400).json({
         yourCommand: command,
-        message: 'Commands string is undefined. Command have to be a string divided by a commas like "f,f,b,r"'
+        message:
+          'Commands string is undefined. Command have to be a string divided by a commas like "f,f,b,r"',
       });
     }
-
   }
 
   // return a errore message with the obstacle position.
-  returnMoveObstacle(res, responseFormat: string|boolean) {
+  returnMoveObstacle(res, responseFormat: string | boolean) {
     const dbData = DatabaseController.getAll(); // retrive all map&rover info from json db
 
-    if(responseFormat == 'json') {
+    if (responseFormat == "json") {
       return res.status(200).json({
         message: `Obstacle found at position x:${this.dbData.futurePosition.x}, y:${this.dbData.futurePosition.y}`,
         roverPosition: this.dbData.currentPosition,
         roverDirection: this.dbData.currentDirection,
-  
+
         mapGrid: this.dbData.mapGrid,
         mapGridObstacles: this.dbData.mapGridObstacles,
         mapLength: this.dbData.mapLength,
       });
     } else {
-        res.status(200).render("roverMove", {
-          obstaclePosition: false,
-          dbData,
-          message: `Obstacle found at position x:${this.dbData.futurePosition.x}, y:${this.dbData.futurePosition.y}`,
-        }); 
+      res.status(200).render("roverMove", {
+        obstaclePosition: false,
+        dbData,
+        message: `Obstacle found at position x:${this.dbData.futurePosition.x}, y:${this.dbData.futurePosition.y}`,
+      });
     }
   }
 
   // return a succes message. The move was moved with no obstacle in the path
-  returnMoveSuccess(res, responseFormat:string|boolean) {
+  returnMoveSuccess(res, responseFormat: string | boolean) {
     const dbData = DatabaseController.getAll(); // retrive all map&rover info from json db
 
-    if(responseFormat == 'json') {
+    if (responseFormat == "json") {
       return res.status(200).json({
         message: "Rover moved. No ostacle found in the commands path.",
         roverPosition: this.dbData.currentPosition,
         roverDirection: this.dbData.currentDirection,
         obstaclePosition: false,
-  
+
         mapGrid: this.dbData.mapGrid,
         mapGridObstacles: this.dbData.mapGridObstacles,
         mapLength: this.dbData.mapLength,
@@ -222,7 +238,7 @@ export default class RoverController {
         obstaclePosition: false,
         dbData,
         message: "Rover moved. No ostacle found in the commands path.",
-      }); 
+      });
     }
   }
 
@@ -237,12 +253,12 @@ export default class RoverController {
       return true;
     } else {
       this.osbtacleFound = false;
-      return false; 
+      return false;
     }
   }
 
-  setFuturePosition(command: string, res: Response) {   
-    this.dbData.futurePosition = {...this.dbData.currentPosition}
+  setFuturePosition(command: string, res: Response) {
+    this.dbData.futurePosition = { ...this.dbData.currentPosition };
 
     // call the corret move function depending on current command
     switch (command) {
@@ -358,8 +374,7 @@ export default class RoverController {
 
   // check if we are outside of the map. If yes we execute the wrapping; if not we do nothing.
   wrapping() {
-    if (this.coordIsOutOfMap())
-      this.executePositionWrapping();
+    if (this.coordIsOutOfMap()) this.executePositionWrapping();
   }
 
   // check if the future position modified coord (x or y) is out of map boundaries.
@@ -371,9 +386,7 @@ export default class RoverController {
       this.dbData.futurePosition[this.lastCoordChanged] > this.dbData.mapLength
     )
       return true; // the current coord is outside the map, so return true to make a position wrapping
-    else
-      return false;
-
+    else return false;
   }
 
   // function that execute the rover position wrapping when the rover go outside of the map
@@ -381,7 +394,9 @@ export default class RoverController {
     if (this.dbData.futurePosition[this.lastCoordChanged] < 0) {
       // if the rover coord position is out map and is < 0 we move the rover to the opposite (x|y = mapLength)
       this.dbData.futurePosition[this.lastCoordChanged] = this.dbData.mapLength;
-    } else if (this.dbData.futurePosition[this.lastCoordChanged] > this.dbData.mapLength) {
+    } else if (
+      this.dbData.futurePosition[this.lastCoordChanged] > this.dbData.mapLength
+    ) {
       // if the rover coord position is out map and is > of this.mapLength we move the rover to the opposite (x|y = 0)
       this.dbData.futurePosition[this.lastCoordChanged] = 0;
     }
