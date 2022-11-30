@@ -1,4 +1,4 @@
-# Mars Rover Api 🪐🤖
+# Mars Rover (backend api) 🪐🤖
 Live link: https://mars-rover-api.herokuapp.com/
 
 *I'm part of the team that explores Mars by sending remotely controlled vehicles to the surface of the planet. 
