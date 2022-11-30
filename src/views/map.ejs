@@ -151,15 +151,3 @@
         border-radius: .3em;
     }
 </style>
-
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  // load socket.io-client
-  var socket = io();
-
-  // listening "update-map" event from server
-  socket.on('update-map', (e) => {
-    // event fired: refreshing the map.
-    window.location.reload();
-  });
-</script>

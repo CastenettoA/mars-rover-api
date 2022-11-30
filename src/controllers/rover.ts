@@ -21,7 +21,7 @@ export default class RoverController {
 
   dbData: any; // obj retrived from json db file (contain all map and rover info)
 
-  constructor(io?) {
+  constructor(io) {
     this.io = io;
     this.initializeRoutes(); // init frontend routes
   }
@@ -129,7 +129,8 @@ export default class RoverController {
           break; // path not free. Exit from for loop to block other commands.
         } else {
             this.roverMove_exec(); // Path is free: so update db and move rover.
-            this.io.emit('update-map');
+            console.log(this.dbData.roverPosition)
+            this.io.emit('update-map', this.dbData.currentPosition);
           }
       }
 
@@ -186,12 +187,11 @@ export default class RoverController {
         mapLength: this.dbData.mapLength,
       });
     } else {
-      res.status(200).render("roverMove", {
-        obstaclePosition: false,
-        dbData,
-        message: `Obstacle found at position x:${this.dbData.futurePosition.x}, y:${this.dbData.futurePosition.y}`,
-
-      }); 
+        res.status(200).render("roverMove", {
+          obstaclePosition: false,
+          dbData,
+          message: `Obstacle found at position x:${this.dbData.futurePosition.x}, y:${this.dbData.futurePosition.y}`,
+        }); 
     }
   }
 
@@ -211,6 +211,7 @@ export default class RoverController {
         mapLength: this.dbData.mapLength,
       });
     } else {
+      //// do nothing beause the .exj view is update by update-map event
       res.status(200).render("roverMove", {
         obstaclePosition: false,
         dbData,

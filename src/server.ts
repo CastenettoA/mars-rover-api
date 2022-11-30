@@ -20,8 +20,12 @@ httpServer.listen(PORT, () => {
 });
 
 /** Socket logic */
-const { Server } = require("socket.io");
-const io = new Server(httpServer); // init a new istance of socket.io passing the http server
+import { Server, Socket } from "socket.io";
+const io = new Server(httpServer, {
+  cors: {
+    origin: ["http://localhost:8080", "https://mars-rover-vue-v2.netlify.app/"]
+  }
+}); // init a new istance of socket.io passing the http server
 
 const rover = new RoverController(io); // init routes, main app logic.
 
