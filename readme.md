@@ -8,6 +8,7 @@ This is an API that translates the commands sent from earth to instructions that
 * Node.js + Express (backend server, API, rover class), TypeScript.
 * EJS as templating language engine (for the /views).
 * A simple db.json file that is used like a database with the help of DatabaseController class. db_local.json for local env. db_prod.json for the prod environment.
+* Socket.io used to update clients on roverPosition change 😉
 * XV as Test Runner & Chota.css as a cool css theme reset.
 
 ### Install
