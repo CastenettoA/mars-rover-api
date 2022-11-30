@@ -9,7 +9,27 @@ import { Point, cartesianXyGrid, Directions, xyCoords } from "./interfaces/carte
 import MapController from './controllers/map';
 import RoverController from './controllers/rover';
 
-let roverTest = new RoverController();
+import http from "http";
+import express, { Express } from "express";
+const app: Express = express();
+
+/** Server */
+const httpServer = http.createServer(app);
+const PORT: any = process.env.PORT ?? 6060;
+httpServer.listen(PORT, () => {
+  console.log(`The server is running on port ${PORT}`);
+  console.log("http://localhost:" + PORT);
+});
+
+/** Socket logic */
+import { Server, Socket } from "socket.io";
+const io = new Server(httpServer, {
+  cors: {
+    origin: ["http://localhost:8080", "https://mars-rover-vue-v2.netlify.app/"]
+  }
+}); // init a new istance of socket.io passing the http server
+
+let roverTest = new RoverController(io);
 let mapTest = new MapController();
 
 export function testGetRouteList() {
