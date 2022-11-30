@@ -18,6 +18,7 @@ export default class RoverController {
 
   lastCoordChanged: xyCoords; // used for position wrapping
   osbtacleFound = false;
+  countCommandRunned = 0;
 
   dbData: any; // obj retrived from json db file (contain all map and rover info)
 
@@ -129,6 +130,7 @@ export default class RoverController {
           break; // path not free. Exit from for loop to block other commands.
         } else {
             this.roverMove_exec(); // Path is free: so update db and move rover.
+            this.countCommandRunned++;
           }
       }
 
@@ -149,8 +151,11 @@ export default class RoverController {
 
   // return movement failture or success
   private returnMoveMessage(res: Response, responseFormat) {
-    console.log('update-map socket event');
-    this.io.emit('update-map', this.dbData.currentPosition); // sending socket to update map on clients
+    if(this.countCommandRunned > 0) { // launch socket only there is at least 1 edit to rover currentPosition
+      console.log('update-map socket event');
+      this.io.emit('update-map', this.dbData.currentPosition); // sending socket to update map on clients
+      this.countCommandRunned = 0; // reset countCommandRunned
+    }
 
       if (this.osbtacleFound) 
           this.returnMoveObstacle(res, responseFormat);
