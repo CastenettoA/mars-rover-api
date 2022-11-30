@@ -23,7 +23,7 @@ httpServer.listen(PORT, () => {
 import { Server, Socket } from "socket.io";
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:8080", "https://mars-rover-vue-v2.netlify.app/"]
+    origin: ["http://localhost:8080", "https://mars-rover-vue-v2.netlify.app"]
   }
 }); // init a new istance of socket.io passing the http server
 
