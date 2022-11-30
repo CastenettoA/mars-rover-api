@@ -1,5 +1,5 @@
-# Mars Rover 🪐🤖
-Live link: https://stormy-meadow-92152.herokuapp.com/
+# Mars Rover Api 🪐🤖
+Live link: https://mars-rover-api.herokuapp.com/
 
 *I'm part of the team that explores Mars by sending remotely controlled vehicles to the surface of the planet. 
 This is an API that translates the commands sent from earth to instructions that are understood by the rover.*
@@ -12,7 +12,7 @@ This is an API that translates the commands sent from earth to instructions that
 
 ### Install
 ```sh
-        git clone https://github.com/CastenettoA/marsRover.git
+        git clone https://github.com/CastenettoA/mars-rover-api.git
         npm install
         npm run dev # to start up local dev server
 ```
@@ -40,7 +40,7 @@ These are the available routes:
 
 ### Live Site
 The app is deployed with a free instance on Heroku.
-Link: https://stormy-meadow-92152.herokuapp.com/
+Link: https://mars-rover-api.herokuapp.com/
 
 Some useful heroku command: 
 * heroku login
